@@ -11,7 +11,8 @@ exports.readPesoCaixas = async (req, res, next) => {
                     peso_caixa.peso_atual as peso_atual, 
                     peso_caixa.criado_em as criado_em, 
                     peso_caixa.caixa_id as caixa_id,
-                    caixas.apicultor_id as apicultor_id 
+                    caixas.apicultor_id as apicultor_id,
+                    caixas.observacao as observacao 
              FROM peso_caixa 
              LEFT JOIN caixas ON peso_caixa.caixa_id = caixas.id
              WHERE caixas.apicultor_id = $1 
