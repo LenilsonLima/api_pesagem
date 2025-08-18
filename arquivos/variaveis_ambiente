@@ -1,0 +1,7 @@
+PGSQL_USER=root
+PGSQL_PASSWORD=GhQYRRW8W6MhlrA0qcK7TKUq6ckBALfK
+PGSQL_HOST=dpg-d24gcfemcj7s739d87ng-a.oregon-postgres.render.com
+PGSQL_PORT=5432
+PGSQL_DATABASE=pesagem_n2ry
+PORT=5000
+JWT_KEY=project_pesagem_jwt
