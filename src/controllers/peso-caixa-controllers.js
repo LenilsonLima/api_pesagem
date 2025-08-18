@@ -20,7 +20,7 @@ exports.readPesoCaixas = async (req, res, next) => {
              AND peso_caixa.criado_em >= $3
              AND peso_caixa.criado_em <= $4
              ORDER BY peso_caixa.id asc`, // Adicionando filtro para os últimos 7 dias
-            [apicultor_id, caixa_id, data_inicial, data_final]
+            [apicultor_id, caixa_id, `${data_inicial} 00:00:00`, `${data_final} 23:59:59`]
         );
 
         if (responsePesoCaixa.length === 0) {
