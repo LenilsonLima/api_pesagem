@@ -70,7 +70,7 @@ exports.createPesoCaixa = async (req, res, next) => {
         let responseConsultcaixa = [];
 
         try {
-            responseConsultcaixa = await axios.get(`https://api-pesagem.vercel.app/caixa/identificador-balanca/${identificador_balanca}`);
+            responseConsultcaixa = await axios.get(`https://api-pesagem-chi.vercel.app/caixa/identificador-balanca/${identificador_balanca}`);
         } catch (error) {
             res.status(500).send({
                 retorno: {
