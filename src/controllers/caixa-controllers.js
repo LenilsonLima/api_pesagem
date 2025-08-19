@@ -3,7 +3,7 @@ const executeQuery = require("../../pgsql");
 exports.readCaixas = async (req, res, next) => {
     try {
         const { apicultor_id } = req.dados;
-        const { obs_identificador } = req.query;
+        const { obs_identificador, status_caixa_peso } = req.query;
 
         const responseCaixa = await executeQuery(
             `SELECT 
@@ -24,10 +24,14 @@ exports.readCaixas = async (req, res, next) => {
                     ORDER BY peso_caixa.criado_em DESC
                     LIMIT 1
                 )
-            WHERE caixas.apicultor_id = $1 and (caixas.observacao ilike $2 or caixas.identificador_balanca ilike $3)
+            WHERE caixas.apicultor_id = $1 
+                AND (caixas.observacao ILIKE $2 OR caixas.identificador_balanca ILIKE $3)
+                    ${status_caixa_peso == 1 ? 'AND peso_caixa.peso_atual >= caixas.limite_peso' : ''}
+                    ${status_caixa_peso == 2 ? 'AND peso_caixa.peso_atual < caixas.limite_peso' : ''}
             ORDER BY caixas.id DESC`,
             [apicultor_id, `%${obs_identificador}%`, `%${obs_identificador}%`]
         );
+
 
 
         if (responseCaixa.length === 0) {
