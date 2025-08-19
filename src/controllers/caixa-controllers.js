@@ -108,7 +108,7 @@ exports.readOneCaixaId = async (req, res, next) => {
 
 exports.readOneCaixaIdentificadorBalanca = async (req, res, next) => {
     try {
-        const { identificador_balanca } = req.params;
+        const { identificador_balanca } = req.query;
 
         const responseCaixa = await executeQuery(
             `SELECT id, observacao, identificador_balanca, criado_em, apicultor_id, limite_peso FROM caixas where identificador_balanca = $1`,
