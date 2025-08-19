@@ -68,7 +68,7 @@ exports.readCaixas = async (req, res, next) => {
 exports.readOneCaixaId = async (req, res, next) => {
     try {
         const { apicultor_id } = req.dados;
-        const { caixa_id } = req.params;
+        const { caixa_id } = req.query;
 
         const responseCaixa = await executeQuery(
             `SELECT id, observacao, identificador_balanca, criado_em, apicultor_id, limite_peso FROM caixas where apicultor_id = $1 and id = $2`,
@@ -206,8 +206,7 @@ exports.createCaixa = async (req, res, next) => {
 
 exports.updateCaixa = async (req, res, next) => {
     try {
-        let { observacao, identificador_balanca, limite_peso } = req.body;
-        let { caixa_id } = req.params;
+        let { observacao, identificador_balanca, limite_peso, caixa_id } = req.body;
         const { apicultor_id } = req.dados;
 
         const resultCaixaExiste = await executeQuery(
@@ -287,7 +286,7 @@ exports.updateCaixa = async (req, res, next) => {
 exports.deleteCaixa = async (req, res, next) => {
     try {
         const { apicultor_id } = req.dados;
-        const { caixa_id } = req.params;
+        const { caixa_id } = req.query;
 
         // Verifica se a caixa existe antes de excluir
         const caixaExistente = await executeQuery(

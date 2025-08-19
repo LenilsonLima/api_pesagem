@@ -230,7 +230,7 @@ exports.createTokenAlterarSenha = async (req, res, next) => {
 
 exports.readOneTokenAlterarSenha = async (req, res, next) => {
     try {
-        const { token_senha } = req.params;
+        const { token_senha } = req.query;
 
         const responseApicultor = await executeQuery(
             `SELECT id FROM token_alterar_senha where token_senha = $1`,

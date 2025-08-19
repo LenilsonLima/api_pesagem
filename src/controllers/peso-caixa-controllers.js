@@ -4,7 +4,7 @@ const executeQuery = require("../../pgsql");
 exports.readPesoCaixas = async (req, res, next) => {
     try {
         const { apicultor_id } = req.dados;
-        const { caixa_id, data_inicial, data_final } = req.params;
+        const { caixa_id, data_inicial, data_final } = req.query;
 
         const responsePesoCaixa = await executeQuery(
             `SELECT peso_caixa.id as id, 
@@ -71,7 +71,15 @@ exports.createPesoCaixa = async (req, res, next) => {
         let responseConsultcaixa = [];
 
         try {
-            responseConsultcaixa = await axios.get(`https://api-pesagem-chi.vercel.app/caixa/identificador-balanca/${identificador_balanca}`);
+            const requestOptions = {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                params: {
+                    identificador_balanca: identificador_balanca
+                }
+            }
+            responseConsultcaixa = await axios.get(`https://api-pesagem-chi.vercel.app/caixa/read_one_identificador_balanca`, requestOptions);
         } catch (error) {
             res.status(500).send({
                 retorno: {
@@ -104,48 +112,6 @@ exports.createPesoCaixa = async (req, res, next) => {
             retorno: {
                 status: 500,
                 mensagem: "Erro ao cadastrar peso, tente novamente.",
-                erro: error.message
-            },
-            registros: []
-        });
-    }
-};
-
-
-const dns = require("dns");
-
-exports.rotaParaTestarResolucaoDeNome = async (req, res, next) => {
-    try {
-        const hostname = 'raspberrypi-000000005913b540.local';
-
-        dns.lookup(hostname, { all: true }, (err, addresses) => {
-            if (err) {
-                console.error("Erro ao resolver hostname:", err);
-                return res.status(500).send({
-                    retorno: {
-                        status: 500,
-                        mensagem: "Erro ao resolver hostname.",
-                        erro: err.message
-                    },
-                    registros: []
-                });
-            }
-
-            res.status(200).send({
-                retorno: {
-                    status: 200,
-                    mensagem: "Teste de resolução de nome feita com sucesso.",
-                },
-                registros: addresses // lista de IPs
-            });
-        });
-
-    } catch (error) {
-        console.error("Erro no teste de resolução de nome:", error);
-        res.status(500).send({
-            retorno: {
-                status: 500,
-                mensagem: "Erro no teste de resolução de nome.",
                 erro: error.message
             },
             registros: []
