@@ -22,7 +22,8 @@ exports.createN8n = async (req, res, next) => {
                 status: 201,
                 mensagem: "Seu registro foi cadastrado com sucesso.",
             },
-            registros: response
+            registros: response,
+            dados: req.body
         });
 
     } catch (error) {
@@ -33,7 +34,8 @@ exports.createN8n = async (req, res, next) => {
                 mensagem: "Erro ao criar registro, tente novamente.",
                 erro: error.message
             },
-            registros: []
+            registros: [],
+            dados: req.body
         });
     }
 };
