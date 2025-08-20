@@ -8,6 +8,7 @@ const app = express();
 const apicultorRoutes = require('./src/routes/apicultor.routes.js');
 const caixaRoutes = require('./src/routes/caixa.routes.js');
 const pesoCaixaRoutes = require('./src/routes/peso-caixa.routes.js');
+const n8nRoutes = require('./src/routes/n8n.routes.js');
 
 // Usando o morgan para logs
 app.use(morgan('dev'));
@@ -46,6 +47,7 @@ app.use((req, res, next) => {
 app.use('/apicultor', apicultorRoutes);
 app.use('/caixa', caixaRoutes);
 app.use('/peso-caixa', pesoCaixaRoutes);
+app.use('/n8n', n8nRoutes);
 
 // Middleware para tratamento de URL não encontrada
 app.use((req, res, next) => {
