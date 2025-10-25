@@ -224,9 +224,8 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Os dados estão em um array no seguinte formato [ 0.1, 0.15, 0.5], cada registro é o peso em kg.
 
             Sua tarefa:
-            1. Identificar variações anormais (valores muito acima ou abaixo da média).
-            2. Determinar a tendência geral do período (crescimento, estabilidade ou queda).
-            3. Gerar observações e possíveis ajustes que o apicultor deve considerar (ao menos 3 registros), é muito importante saber  o porque voce fez essa observação.
+            1. Determinar a tendência geral do período (crescimento, estabilidade ou queda).
+            2. Gerar observações e possíveis ajustes que o apicultor deve considerar (ao menos 3 registros). Identificando variações anormais (valores muito acima ou abaixo da média), é muito importante saber  o porque voce fez essa observação.
 
             Regras importantes:
             - Retorne SOMENTE um JSON válido.
