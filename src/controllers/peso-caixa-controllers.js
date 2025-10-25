@@ -226,7 +226,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Sua tarefa:
             1. Identificar variações anormais (valores muito acima ou abaixo da média).
             2. Determinar a tendência geral do período (crescimento, estabilidade ou queda).
-            3. Gerar observações e possíveis ajustes que o apicultor deve considerar (ao menos 3 registros), e diga o porque voce fez essa observação.
+            3. Gerar observações e possíveis ajustes que o apicultor deve considerar (ao menos 3 registros), é muito importante saber  o porque voce fez essa observação.
 
             Regras importantes:
             - Retorne SOMENTE um JSON válido.
@@ -260,14 +260,13 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             }
         );
 
-        // console.log("Tokens: ", response.data.usage);
-
         res.status(200).send({
             retorno: {
                 status: 200,
                 mensagem: "Análise de pesos gerada com sucesso.",
             },
             registros: JSON.parse(response.data.choices[0].message.content),
+            tokens: response.data.usage
         });
     } catch (error) {
         console.error(error);
