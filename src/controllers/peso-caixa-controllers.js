@@ -227,6 +227,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             1. Identificar variações anormais (valores muito acima ou abaixo da média).
             2. Determinar a tendência geral do período (crescimento, estabilidade ou queda).
             3. Gerar observações e possíveis ajustes que o apicultor deve considerar (ao menos 3 registros).
+            4. No final de cada observação diga o poque dela.
 
             Regras importantes:
             - Retorne SOMENTE um JSON válido.
