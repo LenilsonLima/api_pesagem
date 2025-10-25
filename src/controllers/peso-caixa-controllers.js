@@ -237,7 +237,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
                 "ajustes": [
                     {
                         "texto": "descrição breve e prática do ajuste sugerido (ao menos 150 caracteres). Identificando variações anormais (valores muito acima ou abaixo da média), é muito importante saber o porque voce fez essa observação",
-                        "nível": "crítico | leve"
+                        "nivel": "critico | leve"
                     }
                 ]
             }
