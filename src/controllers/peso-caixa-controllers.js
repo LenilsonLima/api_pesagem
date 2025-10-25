@@ -213,7 +213,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             return res.status(404).send({
                 retorno: {
                     status: 404,
-                    mensagem: "Nenhuma informação foi localizada.",
+                    mensagem: "Erro ao gerar analise, nenhuma informação foi localizada.",
                 },
                 registros: [],
             });
