@@ -348,16 +348,28 @@ exports.loginApicultor = async (req, res, next) => {
         const emailLower = email.toLowerCase();
 
         const apicultor = await executeQuery(
-            `SELECT id, nome, email, senha, criado_em 
+            `SELECT id, nome, email, senha, status, criado_em 
             FROM apicultores 
             WHERE LOWER(email) = $1`,
             [emailLower]);
+
+
 
         if (!apicultor || apicultor.length === 0) {
             return res.status(401).send({
                 retorno: {
                     status: 401,
                     mensagem: "Falha na autenticação, os dados informados são inválidos.",
+                },
+                registros: []
+            });
+        }
+
+        if (apicultor[0].status === 0) {
+            return res.status(403).send({
+                retorno: {
+                    status: 403,
+                    mensagem: "Acesso negado, sua conta de apicultor está bloqueada. Entre em contato com o administrador para mais informações.",
                 },
                 registros: []
             });

@@ -3,6 +3,7 @@ CREATE TABLE apicultores (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
+    status INT DEFAULT 1, -- 1 = ativo, 0 = inativo
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
