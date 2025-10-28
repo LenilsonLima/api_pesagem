@@ -18,27 +18,27 @@ exports.obrigatorioLogin = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_KEY);
 
-    const apicultor = await executeQuery(
+    const usuario = await executeQuery(
       `SELECT status FROM usuarios WHERE id = $1`,
       [decoded?.usuario_id]
     );
 
-    if (!apicultor.length) {
+    if (!usuario.length) {
       return res.status(404).send({
         retorno: {
           status: 404,
-          mensagem: "Apicultor não encontrado.",
+          mensagem: "Usuário não encontrado.",
         },
         registros: [],
       });
     }
 
-    if (apicultor[0].status === 0) {
+    if (usuario[0].status === 0) {
       return res.status(403).send({
         retorno: {
           status: 403,
           mensagem:
-            "Acesso negado, sua conta de apicultor está bloqueada. Entre em contato com o administrador para mais informações.",
+            "Acesso negado, sua conta de usuario está bloqueada. Entre em contato com o administrador para mais informações.",
         },
         registros: [],
       });

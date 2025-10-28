@@ -4,16 +4,16 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 
-exports.readOneApicultor = async (req, res, next) => {
+exports.readOneUsuario = async (req, res, next) => {
     try {
         const { usuario_id } = req.dados;
 
-        const responseApicultor = await executeQuery(
+        const responseUsuario = await executeQuery(
             `SELECT id, nome, email, criado_em FROM usuarios where id = $1`,
             [usuario_id]
         );
 
-        if (responseApicultor.length === 0) {
+        if (responseUsuario.length === 0) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
@@ -28,15 +28,15 @@ exports.readOneApicultor = async (req, res, next) => {
                 status: 200,
                 mensagem: "Dados localizados com sucesso.",
             },
-            registros: responseApicultor
+            registros: responseUsuario
         });
 
     } catch (error) {
-        console.error("Erro ao buscar apicultor:", error);
+        console.error("Erro ao buscar usuário:", error);
         res.status(500).send({
             retorno: {
                 status: 500,
-                mensagem: "Erro ao buscar apicultor, tente novamente.",
+                mensagem: "Erro ao buscar usuário, tente novamente.",
                 erro: error.message
             },
             registros: []
@@ -44,7 +44,7 @@ exports.readOneApicultor = async (req, res, next) => {
     }
 };
 
-exports.createApicultor = async (req, res, next) => {
+exports.createUsuario = async (req, res, next) => {
     try {
         let { nome, email, senha } = req.body;
 
@@ -85,17 +85,17 @@ exports.createApicultor = async (req, res, next) => {
         res.status(201).send({
             retorno: {
                 status: 201,
-                mensagem: "Seu apicultor foi cadastrado com sucesso.",
+                mensagem: "Seu usuário foi cadastrado com sucesso.",
             },
             registros: result
         });
 
     } catch (error) {
-        console.error("Erro ao cadastrar apicultor:", error);
+        console.error("Erro ao cadastrar usuário:", error);
         res.status(500).send({
             retorno: {
                 status: 500,
-                mensagem: "Erro ao cadastrar apicultor, tente novamente.",
+                mensagem: "Erro ao cadastrar usuário, tente novamente.",
                 erro: error.message
             },
             registros: []
@@ -232,12 +232,12 @@ exports.readOneTokenAlterarSenha = async (req, res, next) => {
     try {
         const { token_senha } = req.query;
 
-        const responseApicultor = await executeQuery(
+        const responseUsuario = await executeQuery(
             `SELECT id FROM token_alterar_senha where token_senha = $1`,
             [token_senha]
         );
 
-        if (responseApicultor.length === 0) {
+        if (responseUsuario.length === 0) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
@@ -282,12 +282,12 @@ exports.updateSenha = async (req, res, next) => {
             });
         }
 
-        const responseApicultor = await executeQuery(
+        const responseUsuario = await executeQuery(
             `SELECT id, email FROM token_alterar_senha where token_senha = $1`,
             [token_senha]
         );
 
-        if (responseApicultor.length === 0) {
+        if (responseUsuario.length === 0) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
@@ -301,7 +301,7 @@ exports.updateSenha = async (req, res, next) => {
 
         await executeQuery(
             `update usuarios set senha = $1 where email = $2`,
-            [senhaHash, responseApicultor[0].email]
+            [senhaHash, responseUsuario[0].email]
         );
 
         await executeQuery(
@@ -330,7 +330,7 @@ exports.updateSenha = async (req, res, next) => {
     }
 };
 
-exports.loginApicultor = async (req, res, next) => {
+exports.loginUsuario = async (req, res, next) => {
     try {
         let { email, senha } = req.body;
 
@@ -347,7 +347,7 @@ exports.loginApicultor = async (req, res, next) => {
         // Converter e-mail para lowercase
         const emailLower = email.toLowerCase();
 
-        const apicultor = await executeQuery(
+        const usuario = await executeQuery(
             `SELECT id, nome, email, senha, status, tipo, criado_em 
             FROM usuarios 
             WHERE LOWER(email) = $1`,
@@ -355,7 +355,7 @@ exports.loginApicultor = async (req, res, next) => {
 
 
 
-        if (!apicultor || apicultor.length === 0) {
+        if (!usuario || usuario.length === 0) {
             return res.status(401).send({
                 retorno: {
                     status: 401,
@@ -365,17 +365,17 @@ exports.loginApicultor = async (req, res, next) => {
             });
         }
 
-        if (apicultor[0].status === 0) {
+        if (usuario[0].status === 0) {
             return res.status(403).send({
                 retorno: {
                     status: 403,
-                    mensagem: "Acesso negado, sua conta de apicultor está bloqueada. Entre em contato com o administrador para mais informações.",
+                    mensagem: "Acesso negado, sua conta de usuário está bloqueada. Entre em contato com o administrador para mais informações.",
                 },
                 registros: []
             });
         }
 
-        const { id, nome, senha: senhaHash, tipo, criado_em } = apicultor[0];
+        const { id, nome, senha: senhaHash, tipo, criado_em } = usuario[0];
 
 
         // Comparar senha fornecida com a armazenada
@@ -398,22 +398,22 @@ exports.loginApicultor = async (req, res, next) => {
         );
 
         // Criar objeto de resposta sem senha
-        const apicultorRetorno = { id, nome, email: emailLower, criado_em, token };
+        const usuarioRetorno = { id, nome, email: emailLower, criado_em, token };
 
         res.status(200).send({
             retorno: {
                 status: 200,
-                mensagem: "Apicultor autenticado com sucesso.",
+                mensagem: "Usuário autenticado com sucesso.",
             },
-            registros: apicultorRetorno
+            registros: usuarioRetorno
         });
 
     } catch (error) {
-        console.error("Erro ao autenticar apicultor:", error);
+        console.error("Erro ao autenticar usuário:", error);
         res.status(500).send({
             retorno: {
                 status: 500,
-                mensagem: "Erro ao autenticar apicultor, tente novamente.",
+                mensagem: "Erro ao autenticar usuário, tente novamente.",
                 erro: error.message
             },
             registros: []
@@ -421,7 +421,7 @@ exports.loginApicultor = async (req, res, next) => {
     }
 };
 
-exports.updateApicultor = async (req, res, next) => {
+exports.updateUsuario = async (req, res, next) => {
     try {
         let { nome, email } = req.body;
         const { usuario_id } = req.dados;
@@ -436,7 +436,7 @@ exports.updateApicultor = async (req, res, next) => {
 
         if (resultEmailExiste.length > 0) {
             return res.status(500).send({
-                retorno: { status: 500, mensagem: `Email ${email} já existe para outro apicultor.` },
+                retorno: { status: 500, mensagem: `Email ${email} já existe para outro usuário.` },
                 registros: []
             });
         }
@@ -461,20 +461,20 @@ exports.updateApicultor = async (req, res, next) => {
             });
         }
 
-        // Buscar dados atuais do apicultor
-        const apicultorAtual = await executeQuery(
+        // Buscar dados atuais do usuario
+        const usuarioAtual = await executeQuery(
             `SELECT * FROM usuarios WHERE id = $1`,
             [usuario_id]);
 
-        if (!apicultorAtual.length) {
+        if (!usuarioAtual.length) {
             return res.status(404).send({
-                retorno: { status: 404, mensagem: "Apicultor não encontrado." },
+                retorno: { status: 404, mensagem: "Usuário não encontrado." },
                 registros: []
             });
         }
 
         // Verificar se os dados realmente mudaram
-        const dadosAtuais = apicultorAtual[0];
+        const dadosAtuais = usuarioAtual[0];
         const isDifferent = (
             (nome && nome !== dadosAtuais.nome) ||
             (email && email !== dadosAtuais.email)
@@ -495,17 +495,17 @@ exports.updateApicultor = async (req, res, next) => {
         res.status(200).send({
             retorno: {
                 status: 200,
-                mensagem: "Seu apicultor foi atualizado com sucesso.",
+                mensagem: "Seu usuário foi atualizado com sucesso.",
             },
             registros: result
         });
 
     } catch (error) {
-        // console.error("Erro ao atualizar apicultor:", error);
+        // console.error("Erro ao atualizar usuário:", error);
         res.status(500).send({
             retorno: {
                 status: 500,
-                mensagem: "Erro ao atualizar apicultor, tente novamente.",
+                mensagem: "Erro ao atualizar usuário, tente novamente.",
                 erro: error.message
             },
             registros: []
@@ -513,44 +513,44 @@ exports.updateApicultor = async (req, res, next) => {
     }
 };
 
-exports.deleteApicultor = async (req, res, next) => {
+exports.deleteUsuario = async (req, res, next) => {
     try {
         const { usuario_id } = req.dados;
 
-        // Verifica se o apicultor existe antes de excluir
-        const apicultorExistente = await executeQuery(
+        // Verifica se o usuário existe antes de excluir
+        const usuarioExistente = await executeQuery(
             `SELECT id, nome, email FROM usuarios WHERE id = $1`,
             [usuario_id]);
 
-        if (!apicultorExistente.length) {
+        if (!usuarioExistente.length) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
-                    mensagem: "Apicultor não encontrado ou já removido.",
+                    mensagem: "Usuário não encontrado ou já removido.",
                 },
                 registros: []
             });
         }
 
-        // Excluir apicultor ou marcar como inativo
-        const deletedApicultor = await executeQuery(
+        // Excluir usuário ou marcar como inativo
+        const deletedUsuario = await executeQuery(
             `DELETE FROM usuarios WHERE id=$1 RETURNING *;`,
             [usuario_id]);
 
         res.status(200).send({
             retorno: {
                 status: 200,
-                mensagem: `O apicultor '${deletedApicultor[0].nome}' foi removido com sucesso.`,
+                mensagem: `O usuário '${deletedUsuario[0].nome}' foi removido com sucesso.`,
             },
-            registros: deletedApicultor
+            registros: deletedUsuario
         });
 
     } catch (error) {
-        console.error("Erro ao excluir apicultor:", error);
+        console.error("Erro ao excluir usuário:", error);
         res.status(500).send({
             retorno: {
                 status: 500,
-                mensagem: "Erro interno ao remover apicultor, tente novamente.",
+                mensagem: "Erro interno ao remover usuário, tente novamente.",
                 erro: error.message
             },
             registros: []

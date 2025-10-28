@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const app = express();
 
 // Importando as rotas
-const apicultorRoutes = require('./src/routes/apicultor.routes.js');
+const usuarioRoutes = require('./src/routes/usuario.routes.js');
 const caixaRoutes = require('./src/routes/caixa.routes.js');
 const pesoCaixaRoutes = require('./src/routes/peso-caixa.routes.js');
 
@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 });
 
 // Defina suas rotas e configure o servidor Express
-app.use('/apicultor', apicultorRoutes);
+app.use('/apicultor', usuarioRoutes);
 app.use('/caixa', caixaRoutes);
 app.use('/peso-caixa', pesoCaixaRoutes);
 
