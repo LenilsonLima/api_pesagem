@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 });
 
 // Defina suas rotas e configure o servidor Express
-app.use('/apicultor', usuarioRoutes);
+app.use('/usuario', usuarioRoutes);
 app.use('/caixa', caixaRoutes);
 app.use('/peso-caixa', pesoCaixaRoutes);
 
