@@ -20,7 +20,7 @@ exports.obrigatorioLogin = async (req, res, next) => {
 
     const apicultor = await executeQuery(
       `SELECT status FROM usuarios WHERE id = $1`,
-      [decoded?.apicultor_id]
+      [decoded?.usuario_id]
     );
 
     if (!apicultor.length) {
