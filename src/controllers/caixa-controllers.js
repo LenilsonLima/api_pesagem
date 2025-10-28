@@ -2,7 +2,7 @@ const executeQuery = require("../../pgsql");
 
 exports.readCaixas = async (req, res, next) => {
     try {
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
         const { obs_identificador, status_caixa_peso } = req.query;
 
         const responseCaixa = await executeQuery(
@@ -11,7 +11,7 @@ exports.readCaixas = async (req, res, next) => {
                 caixas.observacao as observacao, 
                 caixas.identificador_balanca as identificador_balanca, 
                 caixas.criado_em as criado_em, 
-                caixas.apicultor_id as apicultor_id, 
+                caixas.usuario_id as usuario_id, 
                 caixas.limite_peso as limite_peso, 
                 peso_caixa.peso_atual as peso_atual
             FROM caixas
@@ -24,12 +24,12 @@ exports.readCaixas = async (req, res, next) => {
                     ORDER BY peso_caixa.criado_em DESC
                     LIMIT 1
                 )
-            WHERE caixas.apicultor_id = $1 
+            WHERE caixas.usuario_id = $1 
                 AND (caixas.observacao ILIKE $2 OR caixas.identificador_balanca ILIKE $3)
                     ${status_caixa_peso == 1 ? 'AND peso_caixa.peso_atual >= caixas.limite_peso' : ''}
                     ${status_caixa_peso == 2 ? 'AND peso_caixa.peso_atual < caixas.limite_peso' : ''}
             ORDER BY caixas.id DESC`,
-            [apicultor_id, `%${obs_identificador}%`, `%${obs_identificador}%`]
+            [usuario_id, `%${obs_identificador}%`, `%${obs_identificador}%`]
         );
 
 
@@ -67,12 +67,12 @@ exports.readCaixas = async (req, res, next) => {
 
 exports.readOneCaixaId = async (req, res, next) => {
     try {
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
         const { caixa_id } = req.query;
 
         const responseCaixa = await executeQuery(
-            `SELECT id, observacao, identificador_balanca, criado_em, apicultor_id, limite_peso FROM caixas where apicultor_id = $1 and id = $2`,
-            [apicultor_id, caixa_id]
+            `SELECT id, observacao, identificador_balanca, criado_em, usuario_id, limite_peso FROM caixas where usuario_id = $1 and id = $2`,
+            [usuario_id, caixa_id]
         );
 
         if (responseCaixa.length === 0) {
@@ -111,7 +111,7 @@ exports.readOneCaixaIdentificadorBalanca = async (req, res, next) => {
         const { identificador_balanca } = req.query;
 
         const responseCaixa = await executeQuery(
-            `SELECT id, observacao, identificador_balanca, criado_em, apicultor_id, limite_peso FROM caixas where identificador_balanca = $1`,
+            `SELECT id, observacao, identificador_balanca, criado_em, usuario_id, limite_peso FROM caixas where identificador_balanca = $1`,
             [identificador_balanca]
         );
 
@@ -149,9 +149,9 @@ exports.readOneCaixaIdentificadorBalanca = async (req, res, next) => {
 exports.createCaixa = async (req, res, next) => {
     try {
         let { observacao, identificador_balanca, limite_peso } = req.body;
-        let { apicultor_id } = req.dados;
+        let { usuario_id } = req.dados;
 
-        if (!observacao || !identificador_balanca || !apicultor_id) {
+        if (!observacao || !identificador_balanca || !usuario_id) {
             return res.status(400).send({
                 retorno: {
                     status: 400,
@@ -163,8 +163,8 @@ exports.createCaixa = async (req, res, next) => {
 
         // Verifica se já existe
         const identificadorExistente = await executeQuery(`
-            SELECT observacao FROM caixas WHERE identificador_balanca = $1 AND apicultor_id = $2
-        `, [identificador_balanca, apicultor_id]);
+            SELECT observacao FROM caixas WHERE identificador_balanca = $1 AND usuario_id = $2
+        `, [identificador_balanca, usuario_id]);
 
         if (identificadorExistente.length > 0) {
             return res.status(409).send({
@@ -178,10 +178,10 @@ exports.createCaixa = async (req, res, next) => {
 
         // Se não existe, cria
         let result = await executeQuery(`
-            INSERT INTO caixas (observacao, identificador_balanca, apicultor_id, limite_peso, criado_em)
+            INSERT INTO caixas (observacao, identificador_balanca, usuario_id, limite_peso, criado_em)
             VALUES ($1, $2, $3, $4, NOW())
-            RETURNING id, observacao, identificador_balanca, apicultor_id, limite_peso, criado_em;
-        `, [observacao, identificador_balanca, apicultor_id, limite_peso || 0]);
+            RETURNING id, observacao, identificador_balanca, usuario_id, limite_peso, criado_em;
+        `, [observacao, identificador_balanca, usuario_id, limite_peso || 0]);
 
         res.status(201).send({
             retorno: {
@@ -207,7 +207,7 @@ exports.createCaixa = async (req, res, next) => {
 exports.updateCaixa = async (req, res, next) => {
     try {
         let { observacao, identificador_balanca, limite_peso, caixa_id } = req.body;
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
 
         const resultCaixaExiste = await executeQuery(
             `select id from caixas where identificador_balanca = $1 and id != $2`,
@@ -247,8 +247,8 @@ exports.updateCaixa = async (req, res, next) => {
 
         // Buscar dados atuais da caixa
         const caixaAtual = await executeQuery(
-            `SELECT * FROM caixas WHERE id = $1 and apicultor_id = $2`,
-            [caixa_id, apicultor_id]);
+            `SELECT * FROM caixas WHERE id = $1 and usuario_id = $2`,
+            [caixa_id, usuario_id]);
 
         if (!caixaAtual.length) {
             return res.status(404).send({
@@ -285,13 +285,13 @@ exports.updateCaixa = async (req, res, next) => {
 
 exports.deleteCaixa = async (req, res, next) => {
     try {
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
         const { caixa_id } = req.query;
 
         // Verifica se a caixa existe antes de excluir
         const caixaExistente = await executeQuery(
-            `SELECT id, observacao, identificador_balanca, apicultor_id FROM caixas WHERE id = $1 and apicultor_id = $2`,
-            [caixa_id, apicultor_id]);
+            `SELECT id, observacao, identificador_balanca, usuario_id FROM caixas WHERE id = $1 and usuario_id = $2`,
+            [caixa_id, usuario_id]);
 
         if (!caixaExistente.length) {
             return res.status(404).send({
@@ -305,8 +305,8 @@ exports.deleteCaixa = async (req, res, next) => {
 
         // Excluir caixa ou marcar como inativo
         const deletedCaixa = await executeQuery(
-            `DELETE FROM caixas WHERE id=$1 and apicultor_id = $2 RETURNING *;`,
-            [caixa_id, apicultor_id]);
+            `DELETE FROM caixas WHERE id=$1 and usuario_id = $2 RETURNING *;`,
+            [caixa_id, usuario_id]);
 
         res.status(200).send({
             retorno: {

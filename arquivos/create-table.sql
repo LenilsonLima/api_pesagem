@@ -1,9 +1,10 @@
-CREATE TABLE apicultores (
+CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
     status INT DEFAULT 1, -- 1 = ativo, 0 = inativo
+    tipo INT DEFAULT 0, -- 0 = apicultor comum, 0 = administrador
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -13,7 +14,7 @@ CREATE TABLE caixas (
     identificador_balanca VARCHAR(100) UNIQUE NOT NULL,
     limite_peso DECIMAL(10,2),
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    apicultor_id INTEGER REFERENCES apicultores(id) ON DELETE CASCADE
+    usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
 CREATE TABLE peso_caixa (

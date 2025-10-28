@@ -6,11 +6,11 @@ const nodemailer = require('nodemailer');
 
 exports.readOneApicultor = async (req, res, next) => {
     try {
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
 
         const responseApicultor = await executeQuery(
-            `SELECT id, nome, email, criado_em FROM apicultores where id = $1`,
-            [apicultor_id]
+            `SELECT id, nome, email, criado_em FROM usuarios where id = $1`,
+            [usuario_id]
         );
 
         if (responseApicultor.length === 0) {
@@ -60,7 +60,7 @@ exports.createApicultor = async (req, res, next) => {
 
         //verifica se o e-mail já existe
         const emailExistente = await executeQuery(`
-            SELECT id, nome, email FROM apicultores WHERE LOWER(email) = $1
+            SELECT id, nome, email FROM usuarios WHERE LOWER(email) = $1
         `, [email.toLowerCase()]);
 
         if (emailExistente.length > 0) {
@@ -77,7 +77,7 @@ exports.createApicultor = async (req, res, next) => {
         const senhaHash = await bcrypt.hash(senha, 10);
 
         const result = await executeQuery(
-            `INSERT INTO apicultores (nome, email, senha, criado_em)
+            `INSERT INTO usuarios (nome, email, senha, criado_em)
             VALUES ($1, $2, $3, NOW())
             RETURNING id, nome, email, criado_em;`,
             [nome, email, senhaHash]);
@@ -167,7 +167,7 @@ exports.createTokenAlterarSenha = async (req, res, next) => {
         }
 
         const resultExisteEmail = await executeQuery(
-            `select id from apicultores where email = $1`,
+            `select id from usuarios where email = $1`,
             [email]
         );
 
@@ -300,7 +300,7 @@ exports.updateSenha = async (req, res, next) => {
         const senhaHash = await bcrypt.hash(senha, 10);
 
         await executeQuery(
-            `update apicultores set senha = $1 where email = $2`,
+            `update usuarios set senha = $1 where email = $2`,
             [senhaHash, responseApicultor[0].email]
         );
 
@@ -348,8 +348,8 @@ exports.loginApicultor = async (req, res, next) => {
         const emailLower = email.toLowerCase();
 
         const apicultor = await executeQuery(
-            `SELECT id, nome, email, senha, status, criado_em 
-            FROM apicultores 
+            `SELECT id, nome, email, senha, status, tipo, criado_em 
+            FROM usuarios 
             WHERE LOWER(email) = $1`,
             [emailLower]);
 
@@ -375,7 +375,7 @@ exports.loginApicultor = async (req, res, next) => {
             });
         }
 
-        const { id, nome, senha: senhaHash, criado_em } = apicultor[0];
+        const { id, nome, senha: senhaHash, tipo, criado_em } = apicultor[0];
 
 
         // Comparar senha fornecida com a armazenada
@@ -392,7 +392,7 @@ exports.loginApicultor = async (req, res, next) => {
 
         // Gerar token JWT
         const token = jwt.sign(
-            { apicultor_id: id, nome, email: emailLower, criado_em },
+            { usuario_id: id, nome, email: emailLower, tipo, criado_em },
             process.env.JWT_KEY,
             // { expiresIn: "48h" }
         );
@@ -424,14 +424,14 @@ exports.loginApicultor = async (req, res, next) => {
 exports.updateApicultor = async (req, res, next) => {
     try {
         let { nome, email } = req.body;
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
 
         // Converter e-mail para lowercase
         if (email) email = email.toLowerCase();
 
         const resultEmailExiste = await executeQuery(
-            `select id from apicultores where email = $1 and id != $2`,
-            [email, apicultor_id]
+            `select id from usuarios where email = $1 and id != $2`,
+            [email, usuario_id]
         );
 
         if (resultEmailExiste.length > 0) {
@@ -463,8 +463,8 @@ exports.updateApicultor = async (req, res, next) => {
 
         // Buscar dados atuais do apicultor
         const apicultorAtual = await executeQuery(
-            `SELECT * FROM apicultores WHERE id = $1`,
-            [apicultor_id]);
+            `SELECT * FROM usuarios WHERE id = $1`,
+            [usuario_id]);
 
         if (!apicultorAtual.length) {
             return res.status(404).send({
@@ -487,8 +487,8 @@ exports.updateApicultor = async (req, res, next) => {
             });
         }
 
-        valores.push(apicultor_id);
-        const query = `UPDATE apicultores SET ${campos.join(", ")} WHERE id=$${valores.length} RETURNING *`;
+        valores.push(usuario_id);
+        const query = `UPDATE usuarios SET ${campos.join(", ")} WHERE id=$${valores.length} RETURNING *`;
 
         const result = await executeQuery(query, valores);
 
@@ -515,12 +515,12 @@ exports.updateApicultor = async (req, res, next) => {
 
 exports.deleteApicultor = async (req, res, next) => {
     try {
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
 
         // Verifica se o apicultor existe antes de excluir
         const apicultorExistente = await executeQuery(
-            `SELECT id, nome, email FROM apicultores WHERE id = $1`,
-            [apicultor_id]);
+            `SELECT id, nome, email FROM usuarios WHERE id = $1`,
+            [usuario_id]);
 
         if (!apicultorExistente.length) {
             return res.status(404).send({
@@ -534,8 +534,8 @@ exports.deleteApicultor = async (req, res, next) => {
 
         // Excluir apicultor ou marcar como inativo
         const deletedApicultor = await executeQuery(
-            `DELETE FROM apicultores WHERE id=$1 RETURNING *;`,
-            [apicultor_id]);
+            `DELETE FROM usuarios WHERE id=$1 RETURNING *;`,
+            [usuario_id]);
 
         res.status(200).send({
             retorno: {

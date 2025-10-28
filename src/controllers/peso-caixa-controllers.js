@@ -3,7 +3,7 @@ const executeQuery = require("../../pgsql");
 
 exports.pesos = async (req, res, next) => {
     try {
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
         const { caixa_id, data_inicial, data_final } = req.query;
 
         if (!data_inicial || !data_final) {
@@ -23,11 +23,11 @@ exports.pesos = async (req, res, next) => {
                     to_char(peso_caixa.criado_em, 'DD/MM') as data
              FROM peso_caixa 
              LEFT JOIN caixas ON peso_caixa.caixa_id = caixas.id
-             WHERE caixas.apicultor_id = $1
+             WHERE caixas.usuario_id = $1
                AND caixas.id = $2
                AND peso_caixa.criado_em BETWEEN $3 AND $4
              ORDER BY peso_caixa.criado_em ASC`,
-            [apicultor_id, caixa_id, `${data_inicial} 00:00:00`, `${data_final} 23:59:59`]
+            [usuario_id, caixa_id, `${data_inicial} 00:00:00`, `${data_final} 23:59:59`]
         );
 
         if (responsePesoCaixa.length === 0) {
@@ -86,7 +86,7 @@ exports.pesos = async (req, res, next) => {
 
 exports.readPesoCaixas = async (req, res, next) => {
     try {
-        const { apicultor_id } = req.dados;
+        const { usuario_id } = req.dados;
         const { caixa_id, data_inicial, data_final } = req.query;
 
         const responsePesoCaixa = await executeQuery(
@@ -94,16 +94,16 @@ exports.readPesoCaixas = async (req, res, next) => {
                     peso_caixa.peso_atual as peso_atual, 
                     peso_caixa.criado_em as criado_em, 
                     peso_caixa.caixa_id as caixa_id,
-                    caixas.apicultor_id as apicultor_id,
+                    caixas.usuario_id as usuario_id,
                     caixas.observacao as observacao 
              FROM peso_caixa 
              LEFT JOIN caixas ON peso_caixa.caixa_id = caixas.id
-             WHERE caixas.apicultor_id = $1 
+             WHERE caixas.usuario_id = $1 
              AND caixas.id = $2
              AND peso_caixa.criado_em >= $3
              AND peso_caixa.criado_em <= $4
              ORDER BY peso_caixa.id asc`,
-            [apicultor_id, caixa_id, `${data_inicial} 00:00:00`, `${data_final} 23:59:59`]
+            [usuario_id, caixa_id, `${data_inicial} 00:00:00`, `${data_final} 23:59:59`]
         );
 
         if (responsePesoCaixa.length === 0) {
