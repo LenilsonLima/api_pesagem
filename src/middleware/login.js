@@ -19,7 +19,7 @@ exports.obrigatorioLogin = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_KEY);
 
     const apicultor = await executeQuery(
-      `SELECT status FROM apicultores WHERE id = $1`,
+      `SELECT status FROM usuarios WHERE id = $1`,
       [decoded?.apicultor_id]
     );
 
