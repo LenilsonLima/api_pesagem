@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 // Configuração do CORS (caso necessário) - ajustada para permitir credenciais
 app.use((req, res, next) => {
     // Lista de origens permitidas
-    const allowedOrigins = ['https://pesagem-omega.vercel.app/#/', 'https://pesagem-omega.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:3000', '*'];
+    const allowedOrigins = ['https://pesagem-omega.vercel.app/#/', 'https://pesagem-omega.vercel.app', 'https://pesa-box-adm.vercel.app/#/', 'https://pesa-box-adm.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:3000', '*'];
 
     // Verifica se a origem da requisição está na lista de origens permitidas
     const origin = req.headers.origin;
