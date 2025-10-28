@@ -5,9 +5,10 @@ const morgan = require('morgan');
 const app = express();
 
 // Importando as rotas
-const usuarioRoutes = require('./src/routes/usuario.routes.js');
-const caixaRoutes = require('./src/routes/caixa.routes.js');
-const pesoCaixaRoutes = require('./src/routes/peso-caixa.routes.js');
+const admRoutes = require('./src/routes/adm/adm.routes.js');
+const usuarioRoutes = require('./src/routes/usuario/usuario.routes.js');
+const caixaRoutes = require('./src/routes/usuario/caixa.routes.js');
+const pesoCaixaRoutes = require('./src/routes/usuario/peso-caixa.routes.js');
 
 // Usando o morgan para logs
 app.use(morgan('dev'));
@@ -43,6 +44,7 @@ app.use((req, res, next) => {
 });
 
 // Defina suas rotas e configure o servidor Express
+app.use('/adm', admRoutes);
 app.use('/usuario', usuarioRoutes);
 app.use('/caixa', caixaRoutes);
 app.use('/peso-caixa', pesoCaixaRoutes);

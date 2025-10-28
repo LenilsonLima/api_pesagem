@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
-const executeQuery = require("../../pgsql");
+const executeQuery = require("../../../pgsql");
 
 exports.pesos = async (req, res, next) => {
     try {

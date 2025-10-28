@@ -1,4 +1,4 @@
-const executeQuery = require("../../pgsql");
+const executeQuery = require("../../../pgsql");
 
 exports.readCaixas = async (req, res, next) => {
     try {

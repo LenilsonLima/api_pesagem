@@ -5,3 +5,4 @@ PGSQL_PORT=5432
 PGSQL_DATABASE=pesagem_1ahe
 PORT=5000
 JWT_KEY=project_pesagem_jwt
+EMAIL_APP_PASSWORD=ckrvqhytjasvdbwu
