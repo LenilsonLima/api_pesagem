@@ -71,9 +71,9 @@ exports.readAdmUsuarios = async (req, res) => {
 exports.blockAdmUsuario = async (req, res) => {
     try {
         const { status, id } = req.body;
-        const { tipo } = req.dados;
+        const { tipo, usuario_id } = req.dados;
 
-        if (tipo === 1) {
+        if (tipo === 1 && usuario_id === id) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
