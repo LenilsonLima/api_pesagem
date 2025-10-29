@@ -42,15 +42,22 @@ exports.readAdmOneUsuario = async (req, res) => {
 // ==========================
 exports.readAdmUsuarios = async (req, res) => {
     try {
+        const { usuario_id } = req.dados;
+
         const usuarios = await executeQuery(
-            `SELECT id, nome, email, tipo, status, criado_em FROM usuarios ORDER BY criado_em DESC`,
-            []
+            `SELECT id, nome, email, tipo, status, criado_em
+             FROM usuarios
+             WHERE id <> $1
+             ORDER BY criado_em DESC`,
+            [usuario_id]
         );
 
-        if (!usuarios.length) return res.status(404).send({
-            retorno: { status: 404, mensagem: "Nenhum usuário encontrado." },
-            registros: []
-        });
+        if (!usuarios.length) {
+            return res.status(404).send({
+                retorno: { status: 404, mensagem: "Nenhum usuário encontrado." },
+                registros: []
+            });
+        }
 
         res.status(200).send({
             retorno: { status: 200, mensagem: "Dados localizados com sucesso." },
@@ -65,23 +72,13 @@ exports.readAdmUsuarios = async (req, res) => {
     }
 };
 
+
 // ==========================
 // Bloquear/Desbloquear usuário
 // ==========================
 exports.blockAdmUsuario = async (req, res) => {
     try {
         const { status, id } = req.body;
-        const { tipo, usuario_id } = req.dados;
-
-        if (tipo === 1 && usuario_id === id) {
-            return res.status(404).send({
-                retorno: {
-                    status: 404,
-                    mensagem: "Ação não disponível para este usuário."
-                },
-                registros: []
-            });
-        }
 
         if (status === undefined || id === undefined) return res.status(400).send({
             retorno: { status: 400, mensagem: "Todos os campos devem ser preenchidos." },
