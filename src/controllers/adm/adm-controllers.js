@@ -71,6 +71,17 @@ exports.readAdmUsuarios = async (req, res) => {
 exports.blockAdmUsuario = async (req, res) => {
     try {
         const { status, id } = req.body;
+        const { tipo } = req.dados;
+
+        if (tipo === 1) {
+            return res.status(404).send({
+                retorno: {
+                    status: 404,
+                    mensagem: "Ação não disponível para este usuário."
+                },
+                registros: []
+            });
+        }
 
         if (status === undefined || id === undefined) return res.status(400).send({
             retorno: { status: 400, mensagem: "Todos os campos devem ser preenchidos." },

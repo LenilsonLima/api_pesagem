@@ -320,7 +320,7 @@ exports.blockUsuario = async (req, res) => {
     try {
         const { usuario_id, tipo } = req.dados;
 
-        if (tipo == 1) {
+        if (tipo === 1) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
