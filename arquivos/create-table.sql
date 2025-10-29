@@ -3,8 +3,8 @@ CREATE TABLE usuarios (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
-    status INT DEFAULT 1, -- 1 = ativo, 0 = inativo
-    tipo INT DEFAULT 0, -- 0 = apicultor comum, 0 = administrador
+    status INT DEFAULT 0, --  0 = inativo, 1 = ativo
+    tipo INT DEFAULT 0, -- 0 = apicultor comum, 1 = administrador
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
