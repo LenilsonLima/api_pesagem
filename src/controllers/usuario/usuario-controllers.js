@@ -321,6 +321,8 @@ exports.blockUsuario = async (req, res) => {
         const { usuario_id, tipo } = req.dados;
         const { id } = req.query;
 
+        const id_select = id ? id : usuario;
+
         if (tipo != 1 && usuario_id != id) {
             return res.status(404).send({
                 retorno: {
@@ -331,7 +333,7 @@ exports.blockUsuario = async (req, res) => {
             });
         }
 
-        const usuario = await executeQuery(`SELECT id, nome FROM usuarios WHERE id = $1`, [usuario_id]);
+        const usuario = await executeQuery(`SELECT id, nome FROM usuarios WHERE id = $1`, [id_select]);
         if (!usuario.length) return res.status(404).send({
             retorno: { status: 404, mensagem: "Usuário não encontrado." },
             registros: []
