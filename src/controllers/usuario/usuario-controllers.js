@@ -104,7 +104,7 @@ const sendEmail = async (email, token) => {
                         <p style="font-size: 14px; color: #555;">
                         Se você não fez essa solicitação para alterar sua senha, alguém pode estar usando sua conta. Verifique e proteja a conta imediatamente.
                         </p>
-                        <a href="https://pesagem-omega.vercel.app/#/senha/alterar/${token}" 
+                        <a href="https://pesa-box-adm.vercel.app/login/alterar/senha/redefinir/${token}" 
                         style="display: inline-block; margin-top: 25px; background-color: #4285F4; color: white; padding: 12px 25px; border-radius: 4px; text-decoration: none; font-size: 15px; min-width: 300px;">
                         Alterar minha senha
                         </a>
