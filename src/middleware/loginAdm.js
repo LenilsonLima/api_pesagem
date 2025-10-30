@@ -47,7 +47,7 @@ exports.obrigatorioLoginAdm = async (req, res, next) => {
         retorno: {
           status: 403,
           mensagem:
-            "Acesso negado, sua conta de usuário está bloqueada. Entre em contato com o administrador.",
+            "Acesso negado, sua conta de usuario está bloqueada. Entre em contato com o administrador para mais informações.",
         },
         registros: []
       });

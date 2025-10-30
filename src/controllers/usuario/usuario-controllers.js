@@ -240,7 +240,7 @@ exports.loginUsuario = async (req, res) => {
         });
 
         if (usuario[0].status === 0) return res.status(403).send({
-            retorno: { status: 403, mensagem: "Conta bloqueada." },
+            retorno: { status: 403, mensagem: "Acesso negado, sua conta de usuario está bloqueada. Entre em contato com o administrador para mais informações." },
             registros: []
         });
 
