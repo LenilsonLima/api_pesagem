@@ -333,13 +333,15 @@ exports.blockUsuario = async (req, res) => {
             });
         }
 
-        const usuario = await executeQuery(`SELECT id, nome FROM usuarios WHERE id = $1`, [id_select]);
+        const usuario = await executeQuery(`SELECT id, nome, status FROM usuarios WHERE id = $1`, [id_select]);
+        const status = usuario[0]?.status == 0 ? 1 : 0;
+
         if (!usuario.length) return res.status(404).send({
             retorno: { status: 404, mensagem: "Usuário não encontrado." },
             registros: []
         });
 
-        const bloqueado = await executeQuery(`UPDATE usuarios SET status=0 WHERE id=$1 RETURNING id, nome, email, criado_em`, [id_select]);
+        const bloqueado = await executeQuery(`UPDATE usuarios SET status=$1 WHERE id=$2 RETURNING id, nome, email, criado_em`, [status, id_select]);
 
         res.status(200).send({
             retorno: { status: 200, mensagem: `Usuário '${bloqueado[0].nome}' bloqueado com sucesso.` },
