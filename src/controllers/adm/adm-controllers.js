@@ -74,51 +74,6 @@ exports.readAdmUsuarios = async (req, res) => {
 
 
 // ==========================
-// Bloquear/Desbloquear usuário
-// ==========================
-exports.blockAdmUsuario = async (req, res) => {
-    try {
-        const { status, id } = req.body;
-
-        if (status === undefined || id === undefined) return res.status(400).send({
-            retorno: { status: 400, mensagem: "Todos os campos devem ser preenchidos." },
-            registros: []
-        });
-
-        if (![0, 1].includes(status)) return res.status(400).send({
-            retorno: { status: 400, mensagem: "Status inválido. Use 0 ou 1." },
-            registros: []
-        });
-
-        const usuarioExiste = await executeQuery(
-            `SELECT id FROM usuarios WHERE id = $1`,
-            [id]
-        );
-
-        if (!usuarioExiste.length) return res.status(404).send({
-            retorno: { status: 404, mensagem: "Usuário não encontrado." },
-            registros: []
-        });
-
-        const atualizado = await executeQuery(
-            `UPDATE usuarios SET status = $1 WHERE id = $2 RETURNING id, nome, email, tipo, status, criado_em`,
-            [status, id]
-        );
-
-        res.status(200).send({
-            retorno: { status: 200, mensagem: "Usuário atualizado com sucesso." },
-            registros: atualizado
-        });
-
-    } catch (error) {
-        res.status(500).send({
-            retorno: { status: 500, mensagem: error.message || "Erro ao atualizar usuário." },
-            registros: []
-        });
-    }
-};
-
-// ==========================
 // Excluir usuário
 // ==========================
 exports.deleteAdmUsuario = async (req, res) => {
