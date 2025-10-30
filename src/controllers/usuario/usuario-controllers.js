@@ -323,7 +323,7 @@ exports.blockUsuario = async (req, res) => {
 
         const id_select = id ? id : usuario_id;
 
-        if (tipo != 1 && usuario_id != id) {
+        if (tipo != 1 && usuario_id != id_select) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
