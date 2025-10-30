@@ -52,7 +52,7 @@ exports.createUsuario = async (req, res) => {
         );
 
         if (emailExistente.length > 0) return res.status(409).send({
-            retorno: { status: 409, mensagem: "E-mail já cadastrado." },
+            retorno: { status: 409, mensagem: "E-mail já cadastrado, tente novamente." },
             registros: []
         });
 
@@ -123,7 +123,7 @@ exports.createTokenAlterarSenha = async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) return res.status(400).send({
-            retorno: { status: 400, mensagem: "Informe o e-mail." },
+            retorno: { status: 400, mensagem: "Erro ao processar requisição, e-mail não informado." },
             registros: []
         });
 
@@ -169,12 +169,12 @@ exports.readOneTokenAlterarSenha = async (req, res) => {
         );
 
         if (!tokenExiste.length) return res.status(404).send({
-            retorno: { status: 404, mensagem: "Ação não autorizada." },
+            retorno: { status: 404, mensagem: "Ação não autorizada, tente novamente." },
             registros: []
         });
 
         res.status(200).send({
-            retorno: { status: 200, mensagem: "Ação autorizada." },
+            retorno: { status: 200, mensagem: "Ação não autorizada, tente novamente." },
             registros: []
         });
 
@@ -199,7 +199,7 @@ exports.updateSenha = async (req, res) => {
 
         const tokenDB = await executeQuery(`SELECT email FROM token_alterar_senha WHERE token_senha = $1`, [token_senha]);
         if (!tokenDB.length) return res.status(404).send({
-            retorno: { status: 404, mensagem: "Ação não autorizada." },
+            retorno: { status: 404, mensagem: "Ação não autorizada, tente novamente." },
             registros: []
         });
 
@@ -235,7 +235,7 @@ exports.loginUsuario = async (req, res) => {
         const usuario = await executeQuery(`SELECT * FROM usuarios WHERE LOWER(email) = $1`, [email]);
 
         if (!usuario.length) return res.status(401).send({
-            retorno: { status: 401, mensagem: "Dados inválidos." },
+            retorno: { status: 401, mensagem: "Dados inválidos, tente novamente." },
             registros: []
         });
 
@@ -246,7 +246,7 @@ exports.loginUsuario = async (req, res) => {
 
         const senhaValida = await bcrypt.compare(senha, usuario[0].senha);
         if (!senhaValida) return res.status(401).send({
-            retorno: { status: 401, mensagem: "Dados inválidos." },
+            retorno: { status: 401, mensagem: "Dados inválidos, tente novamente." },
             registros: []
         });
 
