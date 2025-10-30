@@ -321,7 +321,7 @@ exports.blockUsuario = async (req, res) => {
         const { usuario_id, tipo } = req.dados;
         const { id } = req.query;
 
-        const id_select = id ? id : usuario;
+        const id_select = id ? id : usuario_id;
 
         if (tipo != 1 && usuario_id != id) {
             return res.status(404).send({
@@ -339,7 +339,7 @@ exports.blockUsuario = async (req, res) => {
             registros: []
         });
 
-        const bloqueado = await executeQuery(`UPDATE usuarios SET status=0 WHERE id=$1 RETURNING id, nome, email, criado_em`, [usuario_id]);
+        const bloqueado = await executeQuery(`UPDATE usuarios SET status=0 WHERE id=$1 RETURNING id, nome, email, criado_em`, [id_select]);
 
         res.status(200).send({
             retorno: { status: 200, mensagem: `Usuário '${bloqueado[0].nome}' bloqueado com sucesso.` },
