@@ -48,7 +48,7 @@ exports.readAdmUsuarios = async (req, res) => {
             `SELECT id, nome, email, tipo, status, criado_em
              FROM usuarios
              WHERE id <> $1
-             ORDER BY criado_em DESC`,
+             ORDER BY id ASC`,
             [usuario_id]
         );
 
