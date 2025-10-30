@@ -319,8 +319,9 @@ exports.updateUsuario = async (req, res) => {
 exports.blockUsuario = async (req, res) => {
     try {
         const { usuario_id, tipo } = req.dados;
+        const { id } = req.query;
 
-        if (tipo === 1) {
+        if (tipo != 1 || usuario_id === id) {
             return res.status(404).send({
                 retorno: {
                     status: 404,
