@@ -8,5 +8,6 @@ routes.get('/', loginUsuario.obrigatorioLoginUsuario, pesoCaixaController.readPe
 routes.get('/pesos', loginUsuario.obrigatorioLoginUsuario, pesoCaixaController.pesos);
 routes.post('/', pesoCaixaController.createPesoCaixa);
 routes.post('/analise-ia', loginUsuario.obrigatorioLoginUsuario, pesoCaixaController.getAnaliseOpenAi);
+routes.post('/analise-local', loginUsuario.obrigatorioLoginUsuario, pesoCaixaController.getAnaliseLocal);
 
 module.exports = routes;

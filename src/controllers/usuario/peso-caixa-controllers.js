@@ -218,31 +218,50 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
                 registros: [],
             });
         }
+        
+        const limiar_crescimento = 0.05;
+        const limiar_queda = -0.05;
 
         const texto = `
-            Analise os seguintes registros de pesos de uma colmeia e gere um relatório técnico para o apicultor.
-            Os dados estão em um array no seguinte formato [ 0.1, 0.15, 0.5], cada registro é o peso em kg.
+            Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
+            Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
-            Sua tarefa:
-            1. Determinar a tendência geral do período (crescimento, estabilidade ou queda).
-            2. Gerar observações e possíveis ajustes que o apicultor deve considerar (ao menos 3 registros).
+            Os dados estão em um array no formato: [0.1, 0.15, 0.5]. 
+            Cada valor representa o peso total da colmeia em diferentes períodos de medição.
+
+            Parâmetros de análise:
+            - limiar_crescimento: ${limiar_crescimento}
+            - limiar_queda: ${limiar_queda}
+
+            Tarefas:
+            1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
+            - "crescimento" → aumento consistente acima do limiar_crescimento
+            - "queda" → redução consistente abaixo do limiar_queda
+            - "estabilidade" → oscilações pequenas entre os limiares
+
+            2. Gere observações e ajustes que o apicultor deve considerar (mínimo 3 recomendações).
+            As observações devem:
+            - Ter base em variações anormais (picos ou quedas bruscas);
+            - Explicar o possível motivo da anomalia (florada, temperatura, chuva, falha de sensor, enxameação, etc.);
+            - Ter linguagem técnica, mas de fácil compreensão prática.
 
             Regras importantes:
-            - Retorne SOMENTE um JSON válido.
-            - Não escreva explicações, apenas o JSON.
-            - O JSON deve seguir exatamente este formato:
+            - Retorne SOMENTE um JSON válido, sem comentários ou texto fora do JSON.
+            - O JSON deve seguir exatamente o formato abaixo:
 
             {
                 "tendencia": "crescimento | estabilidade | queda",
                 "ajustes": [
                     {
-                        "texto": "descrição breve e prática do ajuste sugerido (ao menos 150 caracteres). Identificando variações anormais (valores muito acima ou abaixo da média), é muito importante saber o porque voce fez essa observação",
+                        "texto": "descrição técnica e prática do ajuste sugerido (mínimo 150 caracteres). Explique a razão da observação e o impacto potencial na colmeia.",
                         "nivel": "critico | leve"
                     }
                 ]
             }
-            Dados a analisar: ${JSON.stringify(dados)}
+
+            Dados para análise: ${JSON.stringify(dados)}
         `;
+
 
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
@@ -273,6 +292,146 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             retorno: {
                 status: 500,
                 mensagem: "Erro ao gerar análise de pesos, tente novamente.",
+                erro: error.message,
+            },
+            registros: [],
+        });
+    }
+};
+
+exports.getAnaliseLocal = async (req, res, next) => {
+    try {
+        const dados = req.body;
+
+        if (!dados || !Array.isArray(dados) || dados.length < 2) {
+            return res.status(404).send({
+                retorno: {
+                    status: 404,
+                    mensagem: "Erro ao gerar análise, é necessário pelo menos 2 registros de peso.",
+                },
+                registros: [],
+            });
+        }
+
+        // ----------------------------------------------
+        // 🔹 1. Cálculos base
+        // ----------------------------------------------
+
+        const n = dados.length;
+        const variacoes = [];
+        for (let i = 1; i < n; i++) {
+            const variacao = dados[i] - dados[i - 1];
+            variacoes.push(variacao);
+        }
+
+        const soma = variacoes.reduce((a, b) => a + b, 0);
+        const mediaVar = soma / variacoes.length;
+
+        const varMin = Math.min(...variacoes);
+        const varMax = Math.max(...variacoes);
+
+        // Cálculo de desvio padrão das variações
+        const mediaAbs = mediaVar;
+        const desvioPadrao = Math.sqrt(
+            variacoes.map(v => Math.pow(v - mediaAbs, 2)).reduce((a, b) => a + b, 0) / variacoes.length
+        );
+
+        // ----------------------------------------------
+        // 🔹 2. Definição de limiares (ajustáveis)
+        // ----------------------------------------------
+        const LIMIAR_CRESCIMENTO = 0.05;  // kg
+        const LIMIAR_QUEDA = -0.05;       // kg
+        const LIMIAR_VARIACAO_ANORMAL = desvioPadrao * 2; // variação 2x maior que o desvio padrão
+
+        // ----------------------------------------------
+        // 🔹 3. Determinar tendência geral
+        // ----------------------------------------------
+        let tendencia;
+        if (mediaVar > LIMIAR_CRESCIMENTO) tendencia = "crescimento";
+        else if (mediaVar < LIMIAR_QUEDA) tendencia = "queda";
+        else tendencia = "estabilidade";
+
+        // ----------------------------------------------
+        // 🔹 4. Geração das observações
+        // ----------------------------------------------
+
+        const ajustes = [];
+
+        // 📌 Ajuste 1: crescimento forte
+        if (mediaVar > LIMIAR_CRESCIMENTO * 2) {
+            ajustes.push({
+                texto: `A colmeia apresenta um crescimento acentuado, com média de variação de ${mediaVar.toFixed(3)} kg por período. Esse comportamento indica forte entrada de néctar ou aumento da população de abelhas campeiras. Verifique as condições de florada e espaço interno para evitar enxameação por excesso de alimento.`,
+                nivel: "leve"
+            });
+        }
+
+        // 📌 Ajuste 2: queda forte
+        if (mediaVar < LIMIAR_QUEDA * 2) {
+            ajustes.push({
+                texto: `Foi observada uma redução significativa de peso, com média de ${mediaVar.toFixed(3)} kg por período. Essa queda pode estar relacionada a escassez de flores, alta umidade interna ou consumo acelerado do mel estocado. É importante verificar a ventilação da colmeia, presença de pragas e a necessidade de suplementação alimentar.`,
+                nivel: "critico"
+            });
+        }
+
+        // 📌 Ajuste 3: variação anormal isolada (pico positivo)
+        if (varMax > LIMIAR_VARIACAO_ANORMAL) {
+            ajustes.push({
+                texto: `Detectou-se uma variação positiva atípica de ${varMax.toFixed(3)} kg em um único registro. Esse ganho abrupto pode indicar uma intensa atividade de coleta em um dia de florada abundante, ou erro de medição. Caso o comportamento não se repita nos próximos registros, considere recalibrar a balança ou revisar o sensor.`,
+                nivel: "leve"
+            });
+        }
+
+        // 📌 Ajuste 4: variação anormal isolada (pico negativo)
+        if (Math.abs(varMin) > LIMIAR_VARIACAO_ANORMAL) {
+            ajustes.push({
+                texto: `Foi identificada uma perda de peso de ${varMin.toFixed(3)} kg em um intervalo curto, considerada fora do padrão normal (desvio padrão: ${desvioPadrao.toFixed(3)} kg). Essa queda pode ser causada por retirada de mel, chuva intensa que alterou a medição ou aumento do consumo interno. Caso continue, recomenda-se inspeção imediata da colmeia.`,
+                nivel: "critico"
+            });
+        }
+
+        // 📌 Ajuste 5: estabilidade prolongada
+        if (tendencia === "estabilidade" && desvioPadrao < 0.02) {
+            ajustes.push({
+                texto: `A variação de peso permaneceu praticamente estável (desvio padrão de ${desvioPadrao.toFixed(3)} kg), indicando ausência de grandes eventos de coleta ou consumo. Essa condição é comum em períodos de entressafra ou baixa atividade forrageira. Avalie a oferta de florada e a saúde da colônia.`,
+                nivel: "leve"
+            });
+        }
+
+        // 📌 Ajuste 6: observação geral da tendência
+        ajustes.push({
+            texto: `A tendência geral do período é de ${tendencia}, com média de variação de ${mediaVar.toFixed(3)} kg e desvio padrão de ${desvioPadrao.toFixed(3)} kg. Esse comportamento reflete o equilíbrio entre coleta de néctar e consumo interno. Monitorar continuamente essas métricas auxilia na previsão da produção e saúde da colmeia.`,
+            nivel: tendencia === "queda" ? "critico" : "leve"
+        });
+
+        // Garante pelo menos 3 observações
+        while (ajustes.length < 3) {
+            ajustes.push({
+                texto: `Não foram identificadas anomalias significativas além das já listadas. Acompanhe a variação de peso nos próximos dias para confirmar a estabilidade das medições e detectar possíveis alterações de comportamento da colônia.`,
+                nivel: "leve"
+            });
+        }
+
+        // ----------------------------------------------
+        // 🔹 5. Envio da resposta
+        // ----------------------------------------------
+
+        res.status(200).send({
+            retorno: {
+                status: 200,
+                mensagem: "Análise de pesos gerada com sucesso (modo local).",
+            },
+            registros: {
+                tendencia,
+                ajustes
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            retorno: {
+                status: 500,
+                mensagem: "Erro ao gerar análise de pesos (modo local).",
                 erro: error.message,
             },
             registros: [],
