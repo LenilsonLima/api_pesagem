@@ -218,7 +218,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
                 registros: [],
             });
         }
-        
+
         const limiar_crescimento = 0.05;
         const limiar_queda = -0.05;
 
@@ -246,18 +246,19 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             - Ter linguagem técnica, mas de fácil compreensão prática.
 
             Regras importantes:
-            - Retorne SOMENTE um JSON válido, sem comentários ou texto fora do JSON.
-            - O JSON deve seguir exatamente o formato abaixo:
+            Retorne SOMENTE um JSON válido, sem blocos de código, sem crases, sem texto extra. 
+            O JSON deve ter o formato:
 
             {
                 "tendencia": "crescimento | estabilidade | queda",
                 "ajustes": [
                     {
-                        "texto": "descrição técnica e prática do ajuste sugerido (mínimo 150 caracteres). Explique a razão da observação e o impacto potencial na colmeia.",
-                        "nivel": "critico | leve"
+                    "texto": "descrição detalhada",
+                    "nivel": "critico | leve"
                     }
                 ]
             }
+
 
             Dados para análise: ${JSON.stringify(dados)}
         `;
@@ -266,7 +267,9 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
-                model: "gpt-3.5-turbo",
+                model: "gpt-4o-mini", 
+                // gpt-4o-mini aproximadamente 0.13 centavos a cada 100 análises
+                // gpt-4o 25x mais caro, aproximadamente 3.50 a cada 100 análises (mais preciso)
                 messages: [{ role: "user", content: texto }],
                 temperature: 0.7,
             },
@@ -284,7 +287,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
                 mensagem: "Análise de pesos gerada com sucesso.",
             },
             registros: JSON.parse(response.data.choices[0].message.content),
-            // tokens: response.data.usage
+            tokens: response.data.usage
         });
     } catch (error) {
         console.error(error);
@@ -357,7 +360,7 @@ exports.getAnaliseLocal = async (req, res, next) => {
 
         const ajustes = [];
 
-        // 📌 Ajuste 1: crescimento forte
+        // Ajuste 1: crescimento forte
         if (mediaVar > LIMIAR_CRESCIMENTO * 2) {
             ajustes.push({
                 texto: `A colmeia apresenta um crescimento acentuado, com média de variação de ${mediaVar.toFixed(3)} kg por período. Esse comportamento indica forte entrada de néctar ou aumento da população de abelhas campeiras. Verifique as condições de florada e espaço interno para evitar enxameação por excesso de alimento.`,
@@ -365,7 +368,7 @@ exports.getAnaliseLocal = async (req, res, next) => {
             });
         }
 
-        // 📌 Ajuste 2: queda forte
+        // Ajuste 2: queda forte
         if (mediaVar < LIMIAR_QUEDA * 2) {
             ajustes.push({
                 texto: `Foi observada uma redução significativa de peso, com média de ${mediaVar.toFixed(3)} kg por período. Essa queda pode estar relacionada a escassez de flores, alta umidade interna ou consumo acelerado do mel estocado. É importante verificar a ventilação da colmeia, presença de pragas e a necessidade de suplementação alimentar.`,
@@ -373,7 +376,7 @@ exports.getAnaliseLocal = async (req, res, next) => {
             });
         }
 
-        // 📌 Ajuste 3: variação anormal isolada (pico positivo)
+        // Ajuste 3: variação anormal isolada (pico positivo)
         if (varMax > LIMIAR_VARIACAO_ANORMAL) {
             ajustes.push({
                 texto: `Detectou-se uma variação positiva atípica de ${varMax.toFixed(3)} kg em um único registro. Esse ganho abrupto pode indicar uma intensa atividade de coleta em um dia de florada abundante, ou erro de medição. Caso o comportamento não se repita nos próximos registros, considere recalibrar a balança ou revisar o sensor.`,
@@ -381,7 +384,7 @@ exports.getAnaliseLocal = async (req, res, next) => {
             });
         }
 
-        // 📌 Ajuste 4: variação anormal isolada (pico negativo)
+        // Ajuste 4: variação anormal isolada (pico negativo)
         if (Math.abs(varMin) > LIMIAR_VARIACAO_ANORMAL) {
             ajustes.push({
                 texto: `Foi identificada uma perda de peso de ${varMin.toFixed(3)} kg em um intervalo curto, considerada fora do padrão normal (desvio padrão: ${desvioPadrao.toFixed(3)} kg). Essa queda pode ser causada por retirada de mel, chuva intensa que alterou a medição ou aumento do consumo interno. Caso continue, recomenda-se inspeção imediata da colmeia.`,
@@ -389,7 +392,7 @@ exports.getAnaliseLocal = async (req, res, next) => {
             });
         }
 
-        // 📌 Ajuste 5: estabilidade prolongada
+        // Ajuste 5: estabilidade prolongada
         if (tendencia === "estabilidade" && desvioPadrao < 0.02) {
             ajustes.push({
                 texto: `A variação de peso permaneceu praticamente estável (desvio padrão de ${desvioPadrao.toFixed(3)} kg), indicando ausência de grandes eventos de coleta ou consumo. Essa condição é comum em períodos de entressafra ou baixa atividade forrageira. Avalie a oferta de florada e a saúde da colônia.`,
@@ -397,7 +400,7 @@ exports.getAnaliseLocal = async (req, res, next) => {
             });
         }
 
-        // 📌 Ajuste 6: observação geral da tendência
+        // Ajuste 6: observação geral da tendência
         ajustes.push({
             texto: `A tendência geral do período é de ${tendencia}, com média de variação de ${mediaVar.toFixed(3)} kg e desvio padrão de ${desvioPadrao.toFixed(3)} kg. Esse comportamento reflete o equilíbrio entre coleta de néctar e consumo interno. Monitorar continuamente essas métricas auxilia na previsão da produção e saúde da colmeia.`,
             nivel: tendencia === "queda" ? "critico" : "leve"
