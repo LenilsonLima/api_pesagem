@@ -222,8 +222,8 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             });
         }
 
-        const limiar_crescimento = 0.50;
-        const limiar_queda = -0.50;
+        const limiar_crescimento = 0.050;
+        const limiar_queda = -0.050;
 
         const texto = `
             Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
