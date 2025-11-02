@@ -222,12 +222,18 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             });
         }
 
+        const limiar_crescimento = 0.50;
+        const limiar_queda = -0.50;
+
         const texto = `
             Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
             Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
             Os dados estão em um array no formato: ["0.100", "0.150", "0.050"]. 
             Cada valor representa o peso total da colmeia em diferentes períodos de medição.
+
+            - limiar_crescimento = ${limiar_crescimento};
+            - limiar_queda = ${limiar_queda};
 
             Tarefas:
             1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
