@@ -48,6 +48,7 @@ exports.pesos = async (req, res, next) => {
         console.log(pesos);
 
         const limitePeso = registrosConvertidos[0]?.limite_peso || 0;
+        const pesoAtaul = pesos[pesos.length - 1];
 
         // Labels em 4 pontos
         const total = registrosConvertidos.length;
@@ -61,6 +62,7 @@ exports.pesos = async (req, res, next) => {
 
         const registros = {
             limite_peso: limitePeso,
+            peso_atual: pesoAtaul,
             labels,
             datasets: [
                 { data: pesos },
