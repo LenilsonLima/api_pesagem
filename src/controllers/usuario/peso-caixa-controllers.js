@@ -37,14 +37,20 @@ exports.pesos = async (req, res, next) => {
             });
         }
 
+        const registrosConvertidos = responsePesoCaixa.map(item => ({
+            data: item.data,
+            peso: Number(item.peso),
+            limite_peso: Number(item.limite_peso),
+        }));
+
         // Datasets
-        const pesos = responsePesoCaixa.map(r => r.peso);
+        const pesos = registrosConvertidos.map(r => r.peso);
         console.log(pesos);
-        
-        const limitePeso = responsePesoCaixa[0]?.limite_peso || 0;
+
+        const limitePeso = registrosConvertidos[0]?.limite_peso || 0;
 
         // Labels em 4 pontos
-        const total = responsePesoCaixa.length;
+        const total = registrosConvertidos.length;
         const quartis = [
             0,
             Math.floor(total / 4),
