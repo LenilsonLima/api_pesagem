@@ -231,6 +231,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
 
             Tarefas:
             1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
+            - "se houver uma variação de queda ou aumento brusco, informe o peso anterior e o posterior"
             - "crescimento" → aumento consistente acima do limiar_crescimento
             - "queda" → redução consistente abaixo do limiar_queda
             - "estabilidade" → oscilações pequenas entre os limiares
