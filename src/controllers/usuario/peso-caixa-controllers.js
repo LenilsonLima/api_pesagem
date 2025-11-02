@@ -142,59 +142,63 @@ exports.readPesoCaixas = async (req, res, next) => {
 
 exports.createPesoCaixa = async (req, res, next) => {
     try {
-        let { peso_atual, identificador_balanca } = req.body;
+        let { peso_atual, identificador_balanca, tipo_peso } = req.body;
+        tipo_peso = tipo_peso || 0;
 
-        if (!identificador_balanca) {
+        if (!identificador_balanca || peso_atual == null) {
             return res.status(400).send({
                 retorno: {
                     status: 400,
-                    mensagem: "Campos obrigatórios ausentes. Verifique os dados e tente novamente.",
+                    mensagem: "Campos obrigatórios ausentes: peso_atual ou identificador_balanca."
                 },
                 registros: []
             });
         }
 
-        let responseConsultcaixa = [];
-
+        let responseConsultcaixa;
         try {
             const requestOptions = {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                params: {
-                    identificador_balanca: identificador_balanca
-                }
-            }
-            responseConsultcaixa = await axios.get(`https://api-pesagem-chi.vercel.app/caixa/read_one_identificador_balanca`, requestOptions);
+                headers: { 'Content-Type': 'application/json' },
+                params: { identificador_balanca }
+            };
+            responseConsultcaixa = await axios.get(
+                "https://api-pesagem-chi.vercel.app/caixa/read_one_identificador_balanca",
+                requestOptions
+            );
         } catch (error) {
-            res.status(500).send({
+            console.error("Erro ao consultar caixa:", error.response?.data || error.message);
+            return res.status(500).send({
                 retorno: {
                     status: 500,
-                    mensagem: error.response.data.retorno.mensagem,
+                    mensagem: error?.response?.data?.retorno?.mensagem || "Erro ao consultar caixa."
                 },
                 registros: []
             });
         }
 
-        const caixa_id = responseConsultcaixa.data.registros[0].id;
+        const caixa = responseConsultcaixa?.data?.registros?.[0];
+        if (!caixa?.id) {
+            return res.status(404).send({
+                retorno: { status: 404, mensagem: "Caixa não encontrada para o identificador informado." },
+                registros: []
+            });
+        }
 
         const result = await executeQuery(
-            `INSERT INTO peso_caixa (peso_atual, criado_em, caixa_id)
-            VALUES ($1, NOW(), $2)
-            RETURNING id, peso_atual, criado_em, caixa_id;`,
-            [Number(peso_atual) / 1000, caixa_id]);
+            `INSERT INTO peso_caixa (peso_atual, criado_em, caixa_id, tipo_peso)
+             VALUES ($1, NOW(), $2, $3)
+             RETURNING id, peso_atual, criado_em, caixa_id, tipo_peso;`,
+            [Number(peso_atual) / 1000, caixa.id, tipo_peso]
+        );
 
-        res.status(201).send({
-            retorno: {
-                status: 201,
-                mensagem: "Seu peso foi cadastrado com sucesso.",
-            },
+        return res.status(201).send({
+            retorno: { status: 201, mensagem: "Seu peso foi cadastrado com sucesso." },
             registros: result
         });
 
     } catch (error) {
         console.error("Erro ao cadastrar peso:", error);
-        res.status(500).send({
+        return res.status(500).send({
             retorno: {
                 status: 500,
                 mensagem: "Erro ao cadastrar peso, tente novamente.",
@@ -204,7 +208,6 @@ exports.createPesoCaixa = async (req, res, next) => {
         });
     }
 };
-
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
