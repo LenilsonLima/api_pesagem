@@ -37,18 +37,14 @@ exports.pesos = async (req, res, next) => {
             });
         }
 
-        const registrosConvertidos = responsePesoCaixa.map(item => ({
-            data: item.data,
-            peso: Number(item.peso) / 1000,
-            limite_peso: Number(item.limite_peso) / 1000,
-        }));
-
         // Datasets
-        const pesos = registrosConvertidos.map(r => r.peso);
-        const limitePeso = registrosConvertidos[0]?.limite_peso || 0;
+        const pesos = responsePesoCaixa.map(r => r.peso);
+        console.log(pesos);
+        
+        const limitePeso = responsePesoCaixa[0]?.limite_peso || 0;
 
         // Labels em 4 pontos
-        const total = registrosConvertidos.length;
+        const total = responsePesoCaixa.length;
         const quartis = [
             0,
             Math.floor(total / 4),
@@ -179,7 +175,7 @@ exports.createPesoCaixa = async (req, res, next) => {
             `INSERT INTO peso_caixa (peso_atual, criado_em, caixa_id)
             VALUES ($1, NOW(), $2)
             RETURNING id, peso_atual, criado_em, caixa_id;`,
-            [peso_atual, caixa_id]);
+            [Number(peso_atual) / 1000, caixa_id]);
 
         res.status(201).send({
             retorno: {
@@ -267,7 +263,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
-                model: "gpt-4o-mini", 
+                model: "gpt-4o-mini",
                 // gpt-4o-mini aproximadamente 0.13 centavos a cada 100 análises
                 // gpt-4o 25x mais caro, aproximadamente 3.50 a cada 100 análises (mais preciso)
                 messages: [{ role: "user", content: texto }],
