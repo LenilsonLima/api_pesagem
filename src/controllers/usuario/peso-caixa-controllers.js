@@ -45,10 +45,9 @@ exports.pesos = async (req, res, next) => {
 
         // Datasets
         const pesos = registrosConvertidos.map(r => r.peso);
-        console.log(pesos);
 
         const limitePeso = registrosConvertidos[0]?.limite_peso || 0;
-        const pesoAtaul = pesos[pesos.length - 1];
+        const pesoAtaul = pesos[pesos.length - 1] || 0;
 
         // Labels em 4 pontos
         const total = registrosConvertidos.length;
@@ -230,7 +229,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
             Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
-            Os dados estão em um array no formato: [0.1, 0.15, 0.5]. 
+            Os dados estão em um array no formato: ["0.100", "0.150", "0.050"]. 
             Cada valor representa o peso total da colmeia em diferentes períodos de medição.
 
             Parâmetros de análise:
