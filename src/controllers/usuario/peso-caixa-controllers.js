@@ -39,8 +39,8 @@ exports.pesos = async (req, res, next) => {
 
         const registrosConvertidos = responsePesoCaixa.map(item => ({
             data: item.data,
-            peso: Number(item.peso),
-            limite_peso: Number(item.limite_peso),
+            peso: Number(item.peso).toFixed(3),
+            limite_peso: Number(item.limite_peso).toFixed(3),
         }));
 
         // Datasets
