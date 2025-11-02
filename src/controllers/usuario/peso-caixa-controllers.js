@@ -192,16 +192,16 @@ exports.createPesoCaixa = async (req, res, next) => {
         );
 
         return res.status(201).send({
-            retorno: { status: 201, mensagem: "Seu peso foi cadastrado com sucesso." },
+            retorno: { status: 201, mensagem: "Seu registro foi cadastrado com sucesso." },
             registros: result
         });
 
     } catch (error) {
-        console.error("Erro ao cadastrar peso:", error);
+        console.error("Erro ao cadastrar registro:", error);
         return res.status(500).send({
             retorno: {
                 status: 500,
-                mensagem: "Erro ao cadastrar peso, tente novamente.",
+                mensagem: "Erro ao cadastrar registro, tente novamente.",
                 erro: error.message
             },
             registros: []
