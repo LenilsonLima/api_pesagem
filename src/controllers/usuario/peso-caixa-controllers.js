@@ -253,18 +253,18 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Onde:
             - tipo_peso: 0 = medição comum
             - tipo_peso: 1 = coleta de mel realizada
-            - peso_atual: peso total da colmeia em quilos (kg)
+            - peso_atual: peso total da colmeia em quilogramas (kg), valores após o ponto representam gramas
 
             Importante:
             Sempre que o mel é coletado, a balança é tarada (peso zerado). 
-            Portanto, só considere que houve coleta de mel se houver um registro com tipo 1 e peso 0.
+            Assim, só considere que houve coleta de mel se houver um registro com tipo 1 e peso 0.
             Uma queda brusca de peso, por si só, não indica coleta de mel.
 
             Cada valor representa o peso total da colmeia em diferentes períodos de medição.
 
             Parâmetros:
-            - limiar_crescimento = 0.050
-            - limiar_queda = -0.050
+            - limiar_crescimento = 0.030
+            - limiar_queda = -0.030
 
             Tarefas:
             1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
@@ -294,9 +294,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             }
 
             Dados para análise: ${JSON.stringify(responsePesoCaixa)}
-        `;
-
-
+            `;
 
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
