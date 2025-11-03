@@ -242,9 +242,6 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             });
         }
 
-        const limiar_crescimento = 0.050;
-        const limiar_queda = -0.050;
-
         const texto = `
             Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
             Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
