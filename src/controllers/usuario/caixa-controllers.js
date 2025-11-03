@@ -29,7 +29,7 @@ exports.readCaixas = async (req, res, next) => {
                     ${status_caixa_peso == 1 ? 'AND peso_caixa.peso_atual >= caixas.limite_peso' : ''}
                     ${status_caixa_peso == 2 ? 'AND peso_caixa.peso_atual < caixas.limite_peso' : ''}
             ORDER BY caixas.id DESC`,
-            [usuario_id, `%${obs_identificador}%`, `%${obs_identificador}%`]
+            [usuario_id, `%${obs_identificador}%`, `%${obs_identificador || ""}%`]
         );
 
 

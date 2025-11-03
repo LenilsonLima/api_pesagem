@@ -164,7 +164,7 @@ exports.readOneTokenAlterarSenha = async (req, res) => {
         const { token_senha } = req.query;
 
         const tokenExiste = await executeQuery(
-            `SELECT id FROM token_alterar_senha WHERE token_senha = $1`,
+            `SELECT id, token_senha, email FROM token_alterar_senha WHERE token_senha = $1`,
             [token_senha]
         );
 
@@ -174,8 +174,8 @@ exports.readOneTokenAlterarSenha = async (req, res) => {
         });
 
         res.status(200).send({
-            retorno: { status: 200, mensagem: "Ação não autorizada, tente novamente." },
-            registros: []
+            retorno: { status: 200, mensagem: "Token validado com sucesso." },
+            registros: tokenExiste
         });
 
     } catch (error) {
