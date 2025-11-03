@@ -252,7 +252,8 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03', 'tipo_peso': 0 }].
                 'tipo_peso': 0 = medição comum.
                 'tipo_peso': 1 = coleta de mel realizada 
-            Sempre que o mel é coletado a balança é tarada, então o peso vai pra 0.
+            Sempre que o mel é coletado a balança é tarada, então o peso vai pra 0, so considere que houve coleta se tiver registro
+            com tipo 1 e peso 0.
             Cada valor representa o peso total da colmeia em diferentes períodos de medição.
 
             - limiar_crescimento = ${limiar_crescimento};
