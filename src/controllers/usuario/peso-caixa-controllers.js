@@ -249,54 +249,61 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
             Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
-            Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03', 'tipo_peso': 0 }].
-                'tipo_peso': 0 = medição comum.
-                'tipo_peso': 1 = coleta de mel realizada 
-            Sempre que o mel é coletado a balança é tarada, então o peso vai pra 0, so considere que houve possivel coleta de mel se tiver registro
-            com tipo 1 e peso 0, se houver queda brusca isso não indica que houve coleta de mel.
+            Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03', tipo_peso: 0 }]
+            Onde:
+            - tipo_peso: 0 = medição comum
+            - tipo_peso: 1 = coleta de mel realizada
+            - peso_atual: peso total da colmeia em quilos (kg)
+
+            Importante:
+            Sempre que o mel é coletado, a balança é tarada (peso zerado). 
+            Portanto, só considere que houve coleta de mel se houver um registro com tipo 1 e peso 0.
+            Uma queda brusca de peso, por si só, não indica coleta de mel.
+
             Cada valor representa o peso total da colmeia em diferentes períodos de medição.
 
-            - limiar_crescimento = ${limiar_crescimento};
-            - limiar_queda = ${limiar_queda};
+            Parâmetros:
+            - limiar_crescimento = 0.050
+            - limiar_queda = -0.050
 
             Tarefas:
             1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
-            - "se houver uma variação de queda ou aumento brusco, informe o peso anterior e o posterior"
-            - "crescimento" → aumento consistente acima do limiar_crescimento
-            - "queda" → redução consistente abaixo do limiar_queda
-            - "estabilidade" → oscilações pequenas entre os limiares
+            - "crescimento": aumento consistente acima do limiar_crescimento
+            - "queda": redução consistente abaixo do limiar_queda
+            - "estabilidade": oscilações pequenas entre os limiares
+            - Caso haja variação brusca (queda ou aumento repentino), informe o peso anterior e o posterior.
 
             2. Gere observações e ajustes que o apicultor deve considerar (mínimo 3 recomendações).
             As observações devem:
             - Ter base em variações anormais (picos ou quedas bruscas);
             - Explicar o possível motivo da anomalia (florada, temperatura, chuva, falha de sensor, enxameação, etc.);
-            - Ter linguagem técnica, mas de fácil compreensão prática.
+            - Usar linguagem técnica, mas de fácil compreensão prática.
 
             Regras importantes:
-            Retorne SOMENTE um JSON válido, sem blocos de código, sem crases, sem texto extra. 
-            O JSON deve ter o formato:
+            Retorne SOMENTE um JSON válido, sem blocos de código, sem crases e sem texto extra.
+            O JSON de retorno deve ter o formato:
 
             {
                 "tendencia": "crescimento | estabilidade | queda",
                 "ajustes": [
                     {
-                    "texto": "descrição detalhada",
-                    "nivel": "critico | leve"
+                        "texto": "descrição detalhada",
+                        "nivel": "critico | leve"
                     }
                 ]
             }
 
-
             Dados para análise: ${JSON.stringify(responsePesoCaixa)}
         `;
+
 
 
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
                 model: "gpt-4o-mini",
-                // gpt-4o-mini aproximadamente 0.13 centavos a cada 100 análises
-                // gpt-4o 25x mais caro, aproximadamente 3.50 a cada 100 análises (mais preciso)
+                // gpt-4o-mini aproximadamente 13 centavos a cada 100 análises
+                // gpt-4o 25x mais caro, aproximadamente 3.50 reais a cada 100 análises (mais preciso)
                 messages: [{ role: "user", content: texto }],
                 temperature: 0.7,
             },
