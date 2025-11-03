@@ -94,7 +94,11 @@ exports.readPesoCaixas = async (req, res, next) => {
 
         const responsePesoCaixa = await executeQuery(
             `SELECT
+                    peso_caixa.caixa_id as caixa_id,
+                    caixas.usuario_id as usuario_id,
+                    caixas.observacao as observacao,
                     peso_caixa.peso_atual as peso_atual, 
+                    peso_caixa.tipo_peso as tipo_peso,
                     TO_CHAR(peso_caixa.criado_em, 'YYYY-MM-DD') as criado_em 
              FROM peso_caixa 
              LEFT JOIN caixas ON peso_caixa.caixa_id = caixas.id
@@ -216,6 +220,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         const responsePesoCaixa = await executeQuery(
             `SELECT
                     peso_caixa.peso_atual as peso_atual, 
+                    peso_caixa.tipo_peso as tipo_peso, 
                     TO_CHAR(peso_caixa.criado_em, 'YYYY-MM-DD') as criado_em 
              FROM peso_caixa 
              LEFT JOIN caixas ON peso_caixa.caixa_id = caixas.id
@@ -244,7 +249,10 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
             Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
-            Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03' }]. 
+            Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03', 'tipo_peso': 0 }].
+                'tipo_peso': 0 = medição comum.
+                'tipo_peso': 1 = coleta de mel realizada 
+            Sempre que o mel é coletado a balança é tarada, então o peso vai pra 0.
             Cada valor representa o peso total da colmeia em diferentes períodos de medição.
 
             - limiar_crescimento = ${limiar_crescimento};
