@@ -21,14 +21,14 @@ exports.readCaixas = async (req, res, next) => {
                     SELECT peso_caixa.id
                     FROM peso_caixa
                     WHERE peso_caixa.caixa_id = caixas.id
-                    ORDER BY peso_caixa.criado_em DESC
+                    ORDER BY peso_caixa.criado_em ASC
                     LIMIT 1
                 )
             WHERE caixas.usuario_id = $1 
                 AND (caixas.observacao ILIKE $2 OR caixas.identificador_balanca ILIKE $3)
                     ${status_caixa_peso == 1 ? 'AND peso_caixa.peso_atual >= caixas.limite_peso' : ''}
                     ${status_caixa_peso == 2 ? 'AND peso_caixa.peso_atual < caixas.limite_peso' : ''}
-            ORDER BY caixas.id DESC`,
+            ORDER BY caixas.id ASC`,
             [usuario_id, `%${obs_identificador}%`, `%${obs_identificador || ""}%`]
         );
 

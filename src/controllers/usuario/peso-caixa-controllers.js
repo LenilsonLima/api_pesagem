@@ -291,7 +291,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             }
 
             Dados para análise: ${JSON.stringify(responsePesoCaixa)}
-            `;
+        `;
 
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
