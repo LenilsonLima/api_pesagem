@@ -250,14 +250,14 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Onde:
             - tipo_peso: 0 = medição comum
             - tipo_peso: 1 = coleta de mel realizada
-            - peso_atual: peso total da colmeia em quilogramas (kg), valores após o ponto representam gramas
+            - peso_atual: peso total da colmeia em quilogramas (kg), valores após o ponto representam gramas,
+                no caso de tipo_peso = 1 o registro passa a representar quanto foi coletado em kg.
 
-            Importante:
-            Sempre que o mel é coletado, a balança é tarada (peso zerado). 
-            Assim, só considere que houve coleta de mel se houver um registro com tipo 1 e peso 0.
+            Importante:. 
+            Só considere que houve coleta de mel se houver um registro com tipo 1.
             Uma queda brusca de peso, por si só, não indica coleta de mel.
 
-            Cada valor representa o peso total da colmeia em diferentes períodos de medição.
+            Cada valor representa o peso total da colmeia em diferentes períodos de medição, exeto no caso de tipo_peso = 1 o registro passa a representar quanto foi coletado em kg.
 
             Parâmetros:
             - limiar_crescimento = 0.030
