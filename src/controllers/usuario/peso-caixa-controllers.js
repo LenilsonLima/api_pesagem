@@ -256,10 +256,10 @@ Onde:
 
 Regras de interpretação:
   - Só considere coleta de mel se tipo_peso = 1.
-  - Pode haver várias coletas (tipo_peso = 1) em sequência — todas devem ser consideradas.
-  - Quedas de peso após uma coleta ou entre coletas consecutivas são esperadas e não devem ser tratadas como anomalia.
-  - Pesos próximos de zero só devem ser considerados problemas se permanecerem baixos por longos períodos sem novas coletas.
-  - Registros inconsistentes ou zerados fora do contexto de coleta podem indicar falha no sensor.
+  - Pode haver **várias coletas (tipo_peso = 1) em sequência**, todas devem ser consideradas.
+  - **Quedas de peso após uma coleta ou entre coletas consecutivas são esperadas e não devem ser tratadas como anomalia.**
+  - Pesos próximos de zero só devem ser considerados problemas se permanecerem baixos **por um longo período sem novas coletas ou sem recuperação do peso da colmeia**.
+  - Registros inconsistentes ou zerados fora do contexto de coletas podem indicar falha no sensor.
 
 Parâmetros:
   - limiar_crescimento = 0.030
@@ -293,6 +293,7 @@ Formato de saída:
 
 Dados para análise: ${JSON.stringify(responsePesoCaixa)}
 `;
+
 
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
