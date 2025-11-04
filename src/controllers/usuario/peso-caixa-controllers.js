@@ -221,7 +221,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             `SELECT
                     peso_caixa.peso_atual as peso_atual, 
                     peso_caixa.tipo_peso as tipo_peso, 
-                    TO_CHAR(peso_caixa.criado_em, 'YYYY-MM-DD') as criado_em 
+                    peso_caixa.criado_em as criado_em 
              FROM peso_caixa 
              LEFT JOIN caixas ON peso_caixa.caixa_id = caixas.id
              WHERE caixas.usuario_id = $1 
@@ -243,22 +243,21 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         }
 
         const texto = `
-            Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
-            Analise os registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
+            Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
-            Os dados estão em um array no formato: 
-            [{ peso_atual: "25.000", criado_em: "2025-11-03", tipo_peso: 0 }]
+            Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03 19:54:43.985751', tipo_peso: 0 }]
             Onde:
-            - tipo_peso: 0 = medição comum
-            - tipo_peso: 1 = coleta de mel realizada
-            - peso_atual: peso total da colmeia em quilogramas (kg). Valores após o ponto representam gramas.
-            - quando tipo_peso = 1, o peso_atual representa quanto foi coletado (kg) na data informada.
+                - tipo_peso: 0 = medição comum
+                - tipo_peso: 1 = coleta de mel realizada
+                - peso_atual: peso total da colmeia em quilogramas (kg), valores após o ponto representam gramas
+                - em caso de tipo_peso = 1 o peso_atual passa a representar quanto foi retirado da colmeia (kg) na data informada
 
-            Regras de interpretação:
-            - Só considere coleta de mel se tipo_peso = 1.
-            - Pode haver várias coletas (tipo_peso = 1) nos registros, todas devem ser consideradas.
-            - Quedas de peso após uma coleta ou entre coletas consecutivas são esperadas e não devem ser tratadas como anomalia (mesmo que caia pra zero ou proximo).
-            - Pesos próximos de zero só devem ser considerados problemas se permanecerem baixos por um longo período sem novas coletas ou sem recuperação do peso da colmeia.
+            Importante:
+                - só considere que houve coleta de mel se houver um registro com tipo_peso = 1.
+                - uma queda brusca de peso, por si só, não indica coleta de mel.
+                - sempre que houver coleta vai haver uma queda no registro seguinte, pois foi retirado mel
+                - se você for fazer analise referente a coleta, cite o peso anterior a coleta, quanto foi coletado e peso após a coleta
+                - pode haver mais de uma coleta no array de registros
 
             Parâmetros:
             - limiar_crescimento = 0.030
@@ -266,29 +265,32 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
 
             Tarefas:
             1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
-                - "crescimento": aumento consistente acima do limiar_crescimento
-                - "queda": redução consistente abaixo do limiar_queda
-                - "estabilidade": oscilações pequenas entre os limiares
-                - Ignore quedas esperadas após coletas ou entre coletas consecutivas (mesmo se for zero ou proximo).
+            - "crescimento": aumento consistente acima do limiar_crescimento
+            - "queda": redução consistente abaixo do limiar_queda
+            - "estabilidade": oscilações pequenas entre os limiares
+            - Caso haja variação brusca (queda ou aumento repentino sem que haja coleta), informe o peso anterior e o posterior.
+            - sempre q houver queda, verifique se o tipo_peso é igual a 1, ai você deve considerar que foi feita a coleta
+            - os registros devem ser analisados na sequencia que foi passado
 
-            2. Gere observações e recomendações (mínimo 3):
-                - Considere múltiplas coletas e o impacto acumulado delas.
-                - Foque em anomalias que não estejam relacionadas às coletas.
-                - Explique os possíveis motivos técnicos ou biológicos (florada, clima, falha de sensor, enxameação, etc.).
-                - Use linguagem técnica e prática para o apicultor.
+            2. Gere observações e ajustes que o apicultor deve considerar (mínimo 3 recomendações).
+            As observações devem:
+            - Ter base em variações anormais (picos ou quedas bruscas);
+            - Explicar o possível motivo da anomalia (florada, temperatura, chuva, falha de sensor, enxameação, etc.);
+            - Usar linguagem técnica, mas de fácil compreensão prática.
 
-            Formato de saída:
-            - Retorne apenas um JSON válido, sem blocos de código, crases ou texto extra.
-            - Estrutura:
-                {
+            Regras importantes:
+            Retorne SOMENTE um JSON válido, sem blocos de código, sem crases e sem texto extra.
+            O JSON de retorno deve ter o formato:
+
+            {
                 "tendencia": "crescimento | estabilidade | queda",
                 "ajustes": [
                     {
-                    "texto": "descrição detalhada",
-                    "nivel": "critico | leve"
+                        "texto": "descrição detalhada",
+                        "nivel": "critico | leve"
                     }
                 ]
-                }
+            }
 
             Dados para análise: ${JSON.stringify(responsePesoCaixa)}
         `;
@@ -296,7 +298,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
-                model: "gpt-5-mini",
+                model: "gpt-4o-mini",
                 // gpt-4o-mini aproximadamente 13 centavos a cada 100 análises
                 // gpt-4o 25x mais caro, aproximadamente 3.50 reais a cada 100 análises (mais preciso)
                 messages: [{ role: "user", content: texto }],
