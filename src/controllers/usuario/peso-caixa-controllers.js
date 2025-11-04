@@ -257,7 +257,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Só considere que houve coleta de mel se houver um registro com tipo 1.
             Uma queda brusca de peso, por si só, não indica coleta de mel.
 
-            Cada valor representa o peso total da colmeia em diferentes períodos de medição, exeto no caso de tipo_peso = 1 o registro passa a representar quanto foi coletado em kg.
+            Cada valor representa o peso total da colmeia em diferentes períodos de medição, exceto no caso de tipo_peso = 1 o registro passa a representar quanto foi coletado em kg.
 
             Parâmetros:
             - limiar_crescimento = 0.030
@@ -269,6 +269,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             - "queda": redução consistente abaixo do limiar_queda
             - "estabilidade": oscilações pequenas entre os limiares
             - Caso haja variação brusca (queda ou aumento repentino), informe o peso anterior e o posterior.
+            - sempre q houver queda, verifique se o tipo_peso é igual a 1, ai você deve considerar que foi feita a coleta
 
             2. Gere observações e ajustes que o apicultor deve considerar (mínimo 3 recomendações).
             As observações devem:
