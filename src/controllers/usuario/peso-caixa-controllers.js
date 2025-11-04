@@ -296,7 +296,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         const response = await axios.post(
             "https://api.openai.com/v1/chat/completions",
             {
-                model: "gpt-4o-mini",
+                model: "gpt-5-mini",
                 // gpt-4o-mini aproximadamente 13 centavos a cada 100 análises
                 // gpt-4o 25x mais caro, aproximadamente 3.50 reais a cada 100 análises (mais preciso)
                 messages: [{ role: "user", content: texto }],
