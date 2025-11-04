@@ -252,15 +252,14 @@ Onde:
   - tipo_peso: 0 = medição comum
   - tipo_peso: 1 = coleta de mel realizada
   - peso_atual: peso total da colmeia em quilogramas (kg). Valores após o ponto representam gramas.
-  - quando tipo_peso = 1, o peso_atual representa **quanto foi coletado (kg)** na data informada.
+  - quando tipo_peso = 1, o peso_atual representa quanto foi coletado (kg) na data informada.
 
 Regras de interpretação:
   - Só considere coleta de mel se tipo_peso = 1.
-  - Pode haver **mais de uma coleta (tipo_peso = 1)** no mesmo dia ou período — todas devem ser consideradas.
-  - Quedas de peso após uma coleta (ou entre coletas consecutivas) **são esperadas e não devem ser tratadas como anomalia**.
-  - Uma sequência de medições muito baixas após coletas indica apenas o efeito acumulado das retiradas, e não falha.
-  - Apenas quedas significativas **sem coletas associadas** devem ser interpretadas como possíveis falhas de sensor ou problemas biológicos.
-  - Registros com peso zero ou próximo de zero por longos períodos podem indicar falha de medição.
+  - Pode haver várias coletas (tipo_peso = 1) em sequência — todas devem ser consideradas.
+  - Quedas de peso após uma coleta ou entre coletas consecutivas são esperadas e não devem ser tratadas como anomalia.
+  - Pesos próximos de zero só devem ser considerados problemas se permanecerem baixos por longos períodos sem novas coletas.
+  - Registros inconsistentes ou zerados fora do contexto de coleta podem indicar falha no sensor.
 
 Parâmetros:
   - limiar_crescimento = 0.030
@@ -268,16 +267,16 @@ Parâmetros:
 
 Tarefas:
   1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
-      - "crescimento": aumento consistente acima do limiar_crescimento;
-      - "queda": redução consistente abaixo do limiar_queda;
-      - "estabilidade": oscilações pequenas entre os limiares.
-      - Desconsidere quedas logo após coletas (tipo_peso = 1) ou entre coletas consecutivas, pois são esperadas.
+      - "crescimento": aumento consistente acima do limiar_crescimento
+      - "queda": redução consistente abaixo do limiar_queda
+      - "estabilidade": oscilações pequenas entre os limiares
+      - Ignore quedas esperadas após coletas ou entre coletas consecutivas.
 
   2. Gere observações e recomendações (mínimo 3):
       - Considere múltiplas coletas e o impacto acumulado delas.
       - Foque em anomalias que não estejam relacionadas às coletas.
       - Explique os possíveis motivos técnicos ou biológicos (florada, clima, falha de sensor, enxameação, etc.).
-      - Use linguagem técnica e clara, prática para o apicultor.
+      - Use linguagem técnica e prática para o apicultor.
 
 Formato de saída:
   - Retorne apenas um JSON válido, sem blocos de código, crases ou texto extra.
