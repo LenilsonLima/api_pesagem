@@ -248,48 +248,49 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
 
             Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03', tipo_peso: 0 }]
             Onde:
-            - tipo_peso: 0 = medição comum
-            - tipo_peso: 1 = coleta de mel realizada
-            - peso_atual: peso total da colmeia em quilogramas (kg), valores após o ponto representam gramas,
-                no caso de tipo_peso = 1 o registro passa a representar quanto foi coletado em kg.
+                - tipo_peso: 0 = medição comum
+                - tipo_peso: 1 = coleta de mel realizada
+                - peso_atual: peso total da colmeia em quilogramas (kg), valores após o ponto representam gramas
+                - em caso de tipo_peso = 1 o peso_atual passa a representar quanto foi coletado (kg) na data informada
 
-            Importante:. 
-            Só considere que houve coleta de mel se houver um registro com tipo 1.
-            Uma queda brusca de peso, por si só, não indica coleta de mel.
+            Importante:
+                - só considere que houve coleta de mel se houver um registro com tipo_peso = 1
+                - uma queda brusca de peso, por si só, não indica coleta de mel
+                - se houver uma coleta registrada, leve em consideração a analise do proximo registro baseado nessa coleta
 
             Cada valor representa o peso total da colmeia em diferentes períodos de medição, exceto no caso de tipo_peso = 1 o registro passa a representar quanto foi coletado em kg.
 
             Parâmetros:
-            - limiar_crescimento = 0.030
-            - limiar_queda = -0.030
+                - limiar_crescimento = 0.030
+                - limiar_queda = -0.030
 
             Tarefas:
-            1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
-            - "crescimento": aumento consistente acima do limiar_crescimento
-            - "queda": redução consistente abaixo do limiar_queda
-            - "estabilidade": oscilações pequenas entre os limiares
-            - Caso haja variação brusca (queda ou aumento repentino), informe o peso anterior e o posterior.
-            - sempre q houver queda, verifique se o tipo_peso é igual a 1, ai você deve considerar que foi feita a coleta
+                1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
+                    - "crescimento": aumento consistente acima do limiar_crescimento
+                    - "queda": redução consistente abaixo do limiar_queda
+                    - "estabilidade": oscilações pequenas entre os limiares
+                    - caso haja variação brusca (queda ou aumento repentino), informe o peso anterior e o posterior e leve em consideração se houve coleta realizada.
+                    - sempre q houver queda, verifique se o tipo_peso é igual a 1, ai você deve considerar que foi feita a coleta
 
-            2. Gere observações e ajustes que o apicultor deve considerar (mínimo 3 recomendações).
-            As observações devem:
-            - Ter base em variações anormais (picos ou quedas bruscas);
-            - Explicar o possível motivo da anomalia (florada, temperatura, chuva, falha de sensor, enxameação, etc.);
-            - Usar linguagem técnica, mas de fácil compreensão prática.
+                2. Gere observações e ajustes que o apicultor deve considerar (mínimo 3 recomendações).
+                    As observações devem:
+                        - ter base em variações anormais (picos ou quedas bruscas);
+                        - explicar o possível motivo da anomalia (florada, temperatura, chuva, falha de sensor, enxameação, coleta realizada, etc.);
+                        - usar linguagem técnica, mas de fácil compreensão prática.
 
             Regras importantes:
-            Retorne SOMENTE um JSON válido, sem blocos de código, sem crases e sem texto extra.
-            O JSON de retorno deve ter o formato:
+                Retorne SOMENTE um JSON válido, sem blocos de código, sem crases e sem texto extra.
+                O JSON de retorno deve ter o formato:
 
-            {
-                "tendencia": "crescimento | estabilidade | queda",
-                "ajustes": [
-                    {
-                        "texto": "descrição detalhada",
-                        "nivel": "critico | leve"
-                    }
-                ]
-            }
+                {
+                    "tendencia": "crescimento | estabilidade | queda",
+                    "ajustes": [
+                        {
+                            "texto": "descrição detalhada",
+                            "nivel": "critico | leve"
+                        }
+                    ]
+                }
 
             Dados para análise: ${JSON.stringify(responsePesoCaixa)}
         `;
