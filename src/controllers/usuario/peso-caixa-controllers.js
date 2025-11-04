@@ -243,56 +243,52 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         }
 
         const texto = `
-            Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
-            Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
+                Você é um analista técnico especializado em apicultura e controle de peso de colmeias. 
+                Analise os registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
-            Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03', tipo_peso: 0 }]
-            Onde:
-                - tipo_peso: 0 = medição comum
-                - tipo_peso: 1 = coleta de mel realizada
-                - peso_atual: peso total da colmeia em quilogramas (kg), valores após o ponto representam gramas
-                - em caso de tipo_peso = 1 o peso_atual passa a representar quanto foi coletado (kg) na data informada
+                Os dados estão em um array no formato: [{ peso_atual: "25.000", criado_em: "2025-11-03", tipo_peso: 0 }]
+                    Onde:
+                    - tipo_peso: 0 = medição comum
+                    - tipo_peso: 1 = coleta de mel realizada
+                    - peso_atual: peso total da colmeia em quilogramas (kg). Valores após o ponto representam gramas.
+                    - quando tipo_peso = 1, o peso_atual representa quanto foi coletado (kg) na data informada.
 
-            Importante:
-                - só considere que houve coleta de mel se houver um registro com tipo_peso = 1
-                - uma queda brusca de peso, por si só, não indica coleta de mel
-                - se houver uma coleta registrada, leve em consideração a analise do proximo registro baseado nessa coleta
+                Diretrizes:
+                    - só considere coleta de mel se tipo_peso = 1.
+                    - uma queda brusca de peso não indica coleta por si só.
+                    - se houver coleta (tipo_peso = 1), analise o próximo registro com base nela.
+                    - o peso após uma coleta tende naturalmente a cair, pois a coleta retira mel.
 
-            Cada valor representa o peso total da colmeia em diferentes períodos de medição, exceto no caso de tipo_peso = 1 o registro passa a representar quanto foi coletado em kg.
+                Parâmetros de análise:
+                    - limiar_crescimento = 0.030
+                    - limiar_queda = -0.030
 
-            Parâmetros:
-                - limiar_crescimento = 0.030
-                - limiar_queda = -0.030
+                Tarefas:
+                    1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
+                        - "crescimento": aumento consistente acima do limiar_crescimento;
+                        - "queda": redução consistente abaixo do limiar_queda;
+                        - "estabilidade": oscilações pequenas entre os limiares.
+                        - Caso haja variação brusca, informe o peso anterior e o posterior e verifique se houve coleta.
+                        - Sempre que tipo_peso = 1, considere que foi feita coleta e analise o impacto no peso seguinte.
 
-            Tarefas:
-                1. Calcule a variação média entre medições consecutivas e determine a tendência geral do período:
-                    - "crescimento": aumento consistente acima do limiar_crescimento
-                    - "queda": redução consistente abaixo do limiar_queda
-                    - "estabilidade": oscilações pequenas entre os limiares
-                    - caso haja variação brusca (queda ou aumento repentino), informe o peso anterior e o posterior e leve em consideração se houve coleta realizada.
-                    - sempre q houver queda, verifique se o tipo_peso é igual a 1, ai você deve considerar que foi feita a coleta
+                    2. Gere observações e recomendações (mínimo 3), com base nas variações anormais:
+                        - As observações devem explicar o possível motivo (florada, temperatura, chuva, falha de sensor, enxameação, coleta, etc.).
+                        - Use linguagem técnica e clara, adequada para um apicultor prático.
 
-                2. Gere observações e ajustes que o apicultor deve considerar (mínimo 3 recomendações).
-                    As observações devem:
-                        - ter base em variações anormais (picos ou quedas bruscas);
-                        - explicar o possível motivo da anomalia (florada, temperatura, chuva, falha de sensor, enxameação, coleta realizada, etc.);
-                        - usar linguagem técnica, mas de fácil compreensão prática.
-
-            Regras importantes:
-                Retorne SOMENTE um JSON válido, sem blocos de código, sem crases e sem texto extra.
-                O JSON de retorno deve ter o formato:
-
-                {
-                    "tendencia": "crescimento | estabilidade | queda",
-                    "ajustes": [
+                Regras de saída:
+                    - Retorne **apenas um JSON válido**, sem blocos de código, crases ou texto adicional.
+                    - O JSON deve seguir exatamente este formato:
                         {
-                            "texto": "descrição detalhada",
-                            "nivel": "critico | leve"
+                            "tendencia": "crescimento | estabilidade | queda",
+                            "ajustes": [
+                                {
+                                "texto": "descrição detalhada",
+                                "nivel": "critico | leve"
+                                }
+                            ]
                         }
-                    ]
-                }
 
-            Dados para análise: ${JSON.stringify(responsePesoCaixa)}
+                Dados para análise: ${JSON.stringify(responsePesoCaixa)}
         `;
 
         const response = await axios.post(
