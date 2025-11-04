@@ -259,7 +259,6 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             - Pode haver várias coletas (tipo_peso = 1) nos registros, todas devem ser consideradas.
             - Quedas de peso após uma coleta ou entre coletas consecutivas são esperadas e não devem ser tratadas como anomalia (mesmo que caia pra zero ou proximo).
             - Pesos próximos de zero só devem ser considerados problemas se permanecerem baixos por um longo período sem novas coletas ou sem recuperação do peso da colmeia.
-            - Registros inconsistentes ou zerados fora do contexto de coletas podem indicar falha no sensor.
 
             Parâmetros:
             - limiar_crescimento = 0.030
