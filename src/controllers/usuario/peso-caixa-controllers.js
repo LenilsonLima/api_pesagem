@@ -219,6 +219,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
 
         const responsePesoCaixa = await executeQuery(
             `SELECT
+                    peso_caixa.id as id, 
                     peso_caixa.peso_atual as peso_atual, 
                     peso_caixa.tipo_peso as tipo_peso, 
                     peso_caixa.criado_em as criado_em 
@@ -245,7 +246,7 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
         const texto = `
             Analise os seguintes registros de peso (em kg) e gere um relatório técnico objetivo e preciso para o apicultor.
 
-            Os dados estão em um array no formato: [{ peso_atual: '25.000', criado_em: '2025-11-03 19:54:43.985751', tipo_peso: 0 }]
+            Os dados estão em um array no formato: [{ id: 1, peso_atual: '25.000', criado_em: '2025-11-03 19:54:43.985751', tipo_peso: 0 }]
             Onde:
                 - tipo_peso: 0 = medição comum
                 - tipo_peso: 1 = coleta de mel realizada
@@ -255,10 +256,10 @@ exports.getAnaliseOpenAi = async (req, res, next) => {
             Importante:
                 - só considere que houve coleta de mel se houver um registro com tipo_peso = 1.
                 - uma queda brusca de peso, por si só, não indica coleta de mel.
-                - sempre que houver coleta vai haver uma queda no registro seguinte, pois foi retirado mel
+                - sempre que houver coleta vai haver uma queda abrupta no registro seguinte, pois foi retirado mel
                 - se você for fazer analise referente a coleta, cite o peso anterior a coleta, quanto foi coletado e peso após a coleta
                 - pode haver mais de uma coleta no array de registros
-
+                - não pule coletas na analise
             Parâmetros:
             - limiar_crescimento = 0.030
             - limiar_queda = -0.030
