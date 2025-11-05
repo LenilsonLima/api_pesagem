@@ -26,6 +26,7 @@ exports.pesos = async (req, res, next) => {
              WHERE caixas.usuario_id = $1
                AND caixas.id = $2
                AND peso_caixa.criado_em BETWEEN $3 AND $4
+               AND peso_caixa.tipo_peso != 1
              ORDER BY peso_caixa.criado_em ASC`,
             [usuario_id, caixa_id, `${data_inicial} 00:00:00`, `${data_final} 23:59:59`]
         );
