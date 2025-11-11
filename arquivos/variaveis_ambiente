@@ -1,8 +1,8 @@
-PGSQL_USER=pesagem_1ahe_user
-PGSQL_PASSWORD=YYJ5hu7H0aChS4z21D8UEUr1ttAly5aG
-PGSQL_HOST=dpg-d3i1mqndiees73cnmr0g-a.oregon-postgres.render.com
+PGSQL_USER=pesagem_fypa_user
+PGSQL_PASSWORD=dTvzwVgaa6Tx8O87dz1m0BBLIdm7k3UA
+PGSQL_HOST=dpg-d45r8ebe5dus73cc04i0-a.oregon-postgres.render.com
 PGSQL_PORT=5432
-PGSQL_DATABASE=pesagem_1ahe
+PGSQL_DATABASE=pesagem_fypa
 PORT=5000
 JWT_KEY=project_pesagem_jwt
 EMAIL_APP_PASSWORD=ckrvqhytjasvdbwu

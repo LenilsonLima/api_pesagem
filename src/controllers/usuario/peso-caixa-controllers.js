@@ -190,7 +190,7 @@ exports.createPesoCaixa = async (req, res, next) => {
             `INSERT INTO peso_caixa (peso_atual, criado_em, caixa_id, tipo_peso)
              VALUES ($1, NOW(), $2, $3)
              RETURNING id, peso_atual, criado_em, caixa_id, tipo_peso;`,
-            [Number(peso_atual) / 1000, caixa.id, tipo_peso]
+            [peso_atual, caixa.id, tipo_peso]
         );
 
         return res.status(201).send({
